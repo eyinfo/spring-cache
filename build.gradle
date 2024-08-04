@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+}
+
+group 'com.eyinfo'
+version '1.0.0'
+
+repositories {
+    maven { url 'https://mvn.geease.com/repository/cloud-group/' }
+    maven { url 'https://repo.grails.org/grails/core' }
+    mavenCentral()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+dependencies {
+    compile 'com.eyinfo:foundation:1.0.6'
+    compile 'org.springframework.boot:spring-boot-starter-data-mongodb:2.2.5.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-data-redis:2.2.5.RELEASE'
+    compile 'com.github.pagehelper:pagehelper-spring-boot-starter:1.3.0'
+    compile 'com.baomidou:mybatis-plus:3.4.2'
+}
+
+apply from: 'nexus-push.gradle'
