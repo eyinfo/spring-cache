@@ -5,7 +5,7 @@ import com.eyinfo.foundation.entity.BaseEntity;
 import com.eyinfo.foundation.utils.ConvertUtils;
 import com.eyinfo.foundation.utils.GlobalUtils;
 import com.eyinfo.foundation.utils.TextUtils;
-import com.eyinfo.springcache.strategy.QueryStrategy;
+import com.eyinfo.springcache.storage.strategy.QueryStrategy;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;

@@ -8,9 +8,9 @@ import com.eyinfo.springcache.storage.entity.PageConditions;
 import com.eyinfo.springcache.storage.entity.QueryConditions;
 import com.eyinfo.springcache.storage.entity.SearchCondition;
 import com.eyinfo.springcache.storage.events.OnCacheStrategy;
-import com.eyinfo.springcache.strategy.DeleteStrategy;
-import com.eyinfo.springcache.strategy.QueryListStrategy;
-import com.eyinfo.springcache.strategy.QueryStrategy;
+import com.eyinfo.springcache.storage.strategy.DeleteStrategy;
+import com.eyinfo.springcache.storage.strategy.QueryListStrategy;
+import com.eyinfo.springcache.storage.strategy.QueryStrategy;
 import com.github.pagehelper.PageInfo;
 
 import java.lang.reflect.InvocationTargetException;
