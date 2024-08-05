@@ -28,9 +28,9 @@ import java.util.Map;
  */
 class QueryService extends BaseService {
 
-    public <R, Dao, T> PageInfo<R> select(Dao dao, Class<R> itemClass, DbMethodEntry methodEntry, PageConditions<T> conditions, OnCacheStrategy<SearchCondition, PageInfo<R>, R> cacheStrategy) {
+    public <R, Dao> PageInfo<R> select(Dao dao, Class<R> itemClass, DbMethodEntry methodEntry, PageConditions conditions, OnCacheStrategy<SearchCondition, PageInfo<R>, R> cacheStrategy) {
         SearchCondition searchCondition = new SearchCondition();
-        QueryWrapper<T> queryWrapper = conditions.getQueryWrapper();
+        QueryWrapper queryWrapper = conditions.getQueryWrapper();
         searchCondition.setQueryWrapper(queryWrapper);
         searchCondition.setPageNumber(Math.max(conditions.getPageNumber(), 1));
         searchCondition.setPageSize(conditions.getPageSize() <= 0 ? 30 : conditions.getPageSize());
