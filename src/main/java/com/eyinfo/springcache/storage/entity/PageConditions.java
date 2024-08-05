@@ -12,7 +12,7 @@ import java.util.HashMap;
  * Modifier:
  * ModifyContent:
  */
-public class PageConditions<T> {
+public class PageConditions {
     //分页索引
     private int pageNumber;
 
@@ -32,7 +32,7 @@ public class PageConditions<T> {
     private boolean isMap;
 
     //mybatis-plus查询条件
-    private QueryWrapper<T> queryWrapper;
+    private QueryWrapper queryWrapper;
 
     public int getPageNumber() {
         return pageNumber;
@@ -82,11 +82,11 @@ public class PageConditions<T> {
         isMap = map;
     }
 
-    public QueryWrapper<T> getQueryWrapper() {
+    public QueryWrapper getQueryWrapper() {
         return queryWrapper;
     }
 
-    public void setQueryWrapper(QueryWrapper<T> queryWrapper) {
+    public void setQueryWrapper(QueryWrapper queryWrapper) {
         this.queryWrapper = queryWrapper;
     }
 }
