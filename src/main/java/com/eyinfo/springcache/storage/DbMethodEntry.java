@@ -15,20 +15,15 @@ public class DbMethodEntry extends MethodEntry {
     //用于新增或更新时查询方法名
     private String queryMethodName;
     //数据类型
-    private DataType dataType = DataType.dynamic;
+    private final DataType dataType;
 
     public DbMethodEntry(String methodName, String cacheSubKey, DataType dataType, Class<?>... parameterTypes) {
         super(methodName, "9c74ae9a1b498765", cacheSubKey, parameterTypes);
         this.dataType = dataType;
     }
 
-    public DbMethodEntry(String cacheSubKey, DataType dataType, Class<?>... parameterTypes) {
-        this("", cacheSubKey, dataType, parameterTypes);
-    }
-
     public DbMethodEntry cloneEntry(String methodName, DataType dataType) {
-        DbMethodEntry entry = new DbMethodEntry(methodName, this.getCacheSubKey(), dataType, this.getParameterTypes());
-        return entry;
+        return new DbMethodEntry(methodName, this.getCacheSubKey(), dataType, this.getParameterTypes());
     }
 
     public DbMethodEntry cloneEntry(DataType dataType) {
