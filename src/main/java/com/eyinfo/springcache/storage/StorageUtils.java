@@ -33,8 +33,11 @@ public class StorageUtils {
         MongoTemplate mongoTemplate = configuration.getMongoTemplate();
         Environment environment = Environment.getEnvironment(configuration.getActive());
         String content = MongoManager.getInstance().getByKey(mongoTemplate, environment, key);
-        if (itemClass == String.class || JsonUtils.isEmpty(content)) {
+        if (itemClass == String.class) {
             return (R) content;
+        }
+        if (JsonUtils.isEmpty(content)) {
+            return null;
         }
         if (isList) {
             return (R) JsonUtils.parseArray(content, itemClass);
