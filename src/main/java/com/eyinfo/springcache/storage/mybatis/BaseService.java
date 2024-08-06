@@ -66,9 +66,9 @@ public class BaseService<T extends BaseEntity, M extends BaseMapper<T>> {
      * @param skipCache    是否跳过缓存
      * @return
      */
-    public PageListResponse<List<T>> getPageList(M mapper, PageRequest request, QueryWrapper<T> queryWrapper, Class<T> itemClass, DbMethodEntry methodEntry, boolean skipCache) {
+    public PageListResponse<List<T>> getPageList(M mapper, PageRequest request, QueryWrapper queryWrapper, Class<T> itemClass, DbMethodEntry methodEntry, boolean skipCache) {
         PageConditions conditions = new PageConditions();
-        conditions.setQueryWrapper(queryWrapper);
+        conditions.setQueryWrapper(queryWrapper == null ? new QueryWrapper() : queryWrapper);
         if (request.getPage() == null) {
             request.setPage(1);
         }
@@ -95,8 +95,21 @@ public class BaseService<T extends BaseEntity, M extends BaseMapper<T>> {
      * @param methodEntry  查询缓存定义
      * @return
      */
-    public PageListResponse<List<T>> getPageList(M mapper, PageRequest request, QueryWrapper<T> queryWrapper, Class<T> itemClass, DbMethodEntry methodEntry) {
+    public PageListResponse<List<T>> getPageList(M mapper, PageRequest request, QueryWrapper queryWrapper, Class<T> itemClass, DbMethodEntry methodEntry) {
         return this.getPageList(mapper, request, queryWrapper, itemClass, methodEntry, false);
+    }
+
+    /**
+     * 查询分页数据
+     *
+     * @param mapper      mapper
+     * @param request     分页参数
+     * @param itemClass   单条数据class类型
+     * @param methodEntry 查询缓存定义
+     * @return
+     */
+    public PageListResponse<List<T>> getPageList(M mapper, PageRequest request, Class<T> itemClass, DbMethodEntry methodEntry) {
+        return this.getPageList(mapper, request, null, itemClass, methodEntry, false);
     }
 
     /**
@@ -111,7 +124,7 @@ public class BaseService<T extends BaseEntity, M extends BaseMapper<T>> {
      * @param skipCache    是否跳过缓存
      * @return
      */
-    public PageListResponse<List<T>> getPageList(M mapper, int page, int limit, QueryWrapper<T> queryWrapper, Class<T> itemClass, DbMethodEntry methodEntry, boolean skipCache) {
+    public PageListResponse<List<T>> getPageList(M mapper, int page, int limit, QueryWrapper queryWrapper, Class<T> itemClass, DbMethodEntry methodEntry, boolean skipCache) {
         PageRequest request = new PageRequest();
         request.setPage(page);
         request.setLimit(limit);
@@ -129,8 +142,22 @@ public class BaseService<T extends BaseEntity, M extends BaseMapper<T>> {
      * @param methodEntry  查询缓存定义
      * @return
      */
-    public PageListResponse<List<T>> getPageList(M mapper, int page, int limit, QueryWrapper<T> queryWrapper, Class<T> itemClass, DbMethodEntry methodEntry) {
+    public PageListResponse<List<T>> getPageList(M mapper, int page, int limit, QueryWrapper queryWrapper, Class<T> itemClass, DbMethodEntry methodEntry) {
         return this.getPageList(mapper, page, limit, queryWrapper, itemClass, methodEntry, false);
+    }
+
+    /**
+     * 查询分页数据
+     *
+     * @param mapper      mapper
+     * @param page        查询分页
+     * @param limit       每页显示大小
+     * @param itemClass   单条数据class类型
+     * @param methodEntry 查询缓存定义
+     * @return
+     */
+    public PageListResponse<List<T>> getPageList(M mapper, int page, int limit, Class<T> itemClass, DbMethodEntry methodEntry) {
+        return this.getPageList(mapper, page, limit, null, itemClass, methodEntry, false);
     }
 
     /**
