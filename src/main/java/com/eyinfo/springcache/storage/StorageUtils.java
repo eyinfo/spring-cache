@@ -1,9 +1,6 @@
 package com.eyinfo.springcache.storage;
 
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-
-import java.util.concurrent.TimeUnit;
+import com.eyinfo.foundation.enums.Environment;
 
 public class StorageUtils {
 
@@ -13,16 +10,17 @@ public class StorageUtils {
         return configuration;
     }
 
-    public static void saveRedis(String key, Object data) {
-        RedisTemplate redisTemplate = configuration.getRedisTemplate();
+    /**
+     * 获取当前运行时环境
+     *
+     * @{StorageConfiguration}未配置时默认为dev-开发环境
+     */
+    public static Environment getEnvironment() {
+        if (configuration == null) {
+            return Environment.dev;
+        }
         String active = configuration.getActive();
-        redisTemplate.opsForValue().set(String.format("%s_%s", active, key), data, 2, TimeUnit.DAYS);
-    }
-
-    public static <R> R getFromRedis(String key) {
-        RedisTemplate redisTemplate = configuration.getRedisTemplate();
-        ValueOperations<String, R> opsForValue = redisTemplate.opsForValue();
-        String active = configuration.getActive();
-        return opsForValue.get(String.format("%s_%s", active, key));
+        Environment environment = Environment.getEnvironment(active);
+        return environment == null ? Environment.dev : environment;
     }
 }

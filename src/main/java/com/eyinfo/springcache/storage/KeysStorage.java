@@ -2,9 +2,11 @@ package com.eyinfo.springcache.storage;
 
 import com.eyinfo.foundation.utils.GlobalUtils;
 import com.eyinfo.foundation.utils.TextUtils;
+import com.eyinfo.springcache.redis.RedisManager;
 import com.eyinfo.springcache.storage.entity.ObjectEntry;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author lijinghuan
@@ -21,7 +23,7 @@ public class KeysStorage {
         HashMap<String, String> objectKeys = entry.getObjectKeys();
         objectKeys.put(objectKey, methodEntry.getDataType());
         entry.setUnique(GlobalUtils.getGuidNoConnect());
-        StorageUtils.saveRedis(methodEntry.getCacheSubKey(), entry);
+        RedisManager.getInstance().set(methodEntry.getCacheSubKey(), entry, 2, TimeUnit.DAYS);
         return entry;
     }
 
@@ -35,7 +37,7 @@ public class KeysStorage {
     // uuid-1 |  dynamic   |
     //isQuery:指本次操作是否获取数据
     public static String geObjectUnique(String objectKey, DbMethodEntry methodEntry, boolean isQuery) {
-        ObjectEntry entry = StorageUtils.getFromRedis(methodEntry.getCacheSubKey());
+        ObjectEntry entry = RedisManager.getInstance().get(methodEntry.getCacheSubKey());
         if (entry == null || TextUtils.isEmpty(entry.getUnique())) {
             entry = addObjectEntry(objectKey, methodEntry);
         }
@@ -43,7 +45,7 @@ public class KeysStorage {
         if (!objectKeys.containsKey(objectKey) && !isQuery) {
             String dataType = methodEntry.getDataType();
             objectKeys.put(objectKey, dataType);
-            StorageUtils.saveRedis(methodEntry.getCacheSubKey(), entry);
+            RedisManager.getInstance().set(methodEntry.getCacheSubKey(), entry, 2, TimeUnit.DAYS);
         }
         return objectKey;
     }

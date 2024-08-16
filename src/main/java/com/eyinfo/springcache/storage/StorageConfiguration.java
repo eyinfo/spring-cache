@@ -40,7 +40,7 @@ public class StorageConfiguration implements ApplicationContextAware {
         return this.mongoTemplate;
     }
 
-    public RedisTemplate getRedisTemplate() {
+    public <K, V> RedisTemplate<K, V> getRedisTemplate() {
         return this.redisTemplate;
     }
 }
