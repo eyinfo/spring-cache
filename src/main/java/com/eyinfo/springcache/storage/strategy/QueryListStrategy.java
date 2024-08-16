@@ -1,11 +1,10 @@
 package com.eyinfo.springcache.storage.strategy;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.eyinfo.foundation.utils.JsonUtils;
 import com.eyinfo.foundation.utils.ObjectJudge;
 import com.eyinfo.foundation.utils.TextUtils;
+import com.eyinfo.springcache.mongo.MongoManager;
 import com.eyinfo.springcache.storage.DbMethodEntry;
-import com.eyinfo.springcache.storage.StorageUtils;
 import com.eyinfo.springcache.storage.entity.SearchCondition;
 import com.github.pagehelper.PageInfo;
 
@@ -30,8 +29,7 @@ public class QueryListStrategy extends BaseQueryStrategy {
         if (ObjectJudge.isNullOrEmpty(list)) {
             return;
         }
-        String content = JsonUtils.toStr(pageInfo);
-        StorageUtils.save(content, key);
+        MongoManager.getInstance().save(key, pageInfo);
     }
 
     public void save(DbMethodEntry methodEntry, SearchCondition conditions, Object data) {
@@ -53,7 +51,7 @@ public class QueryListStrategy extends BaseQueryStrategy {
         if (TextUtils.isEmpty(key)) {
             return null;
         }
-        return StorageUtils.get(key, itemClass, isList);
+        return MongoManager.getInstance().get(key, itemClass, isList);
     }
 
     public <R, Item> R query(DbMethodEntry methodEntry, SearchCondition conditions, Class<Item> itemClass, boolean isList) {
@@ -73,6 +71,6 @@ public class QueryListStrategy extends BaseQueryStrategy {
 
     //清除包含前缀缓存
     public void cleanContainsPrefixCache(DbMethodEntry... methodEntry) {
-        StorageUtils.cleanContainsPrefixCache(methodEntry);
+        MongoManager.getInstance().cleanContainsPrefixCache(methodEntry);
     }
 }

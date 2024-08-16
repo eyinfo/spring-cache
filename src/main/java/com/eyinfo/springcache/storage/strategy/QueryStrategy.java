@@ -2,9 +2,9 @@ package com.eyinfo.springcache.storage.strategy;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.eyinfo.foundation.utils.TextUtils;
+import com.eyinfo.springcache.mongo.MongoManager;
 import com.eyinfo.springcache.storage.DbMethodEntry;
 import com.eyinfo.springcache.storage.KeysStorage;
-import com.eyinfo.springcache.storage.StorageUtils;
 
 /**
  * @Author lijinghuan
@@ -35,7 +35,7 @@ public class QueryStrategy extends BaseQueryStrategy {
             return;
         }
         String objectUnique = isMergeSave ? KeysStorage.geObjectUnique(key, methodEntry, false) : key;
-        StorageUtils.save(data, objectUnique);
+        MongoManager.getInstance().save(objectUnique, data);
     }
 
     public <T> void savePlus(DbMethodEntry methodEntry, QueryWrapper<T> queryWrapper, Object data, boolean isMergeSave) {
@@ -47,7 +47,7 @@ public class QueryStrategy extends BaseQueryStrategy {
             return;
         }
         String objectUnique = isMergeSave ? KeysStorage.geObjectUnique(key, methodEntry, false) : key;
-        StorageUtils.save(data, objectUnique);
+        MongoManager.getInstance().save(objectUnique, data);
     }
 
     /**
@@ -68,9 +68,9 @@ public class QueryStrategy extends BaseQueryStrategy {
         }
         if (isMergeQuery) {
             String objectUnique = KeysStorage.geObjectUnique(key, methodEntry, true);
-            return StorageUtils.get(objectUnique, itemClass, isList);
+            return MongoManager.getInstance().get(objectUnique, itemClass, isList);
         } else {
-            return StorageUtils.get(key, itemClass, isList);
+            return MongoManager.getInstance().get(key, itemClass, isList);
         }
     }
 
@@ -81,9 +81,9 @@ public class QueryStrategy extends BaseQueryStrategy {
         }
         if (isMergeQuery) {
             String objectUnique = KeysStorage.geObjectUnique(key, methodEntry, true);
-            return StorageUtils.get(objectUnique, itemClass, isList);
+            return MongoManager.getInstance().get(objectUnique, itemClass, isList);
         } else {
-            return StorageUtils.get(key, itemClass, isList);
+            return MongoManager.getInstance().get(key, itemClass, isList);
         }
     }
 

@@ -2,9 +2,9 @@ package com.eyinfo.springcache.storage.strategy;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.eyinfo.foundation.utils.TextUtils;
+import com.eyinfo.springcache.mongo.MongoManager;
 import com.eyinfo.springcache.storage.DbMethodEntry;
 import com.eyinfo.springcache.storage.KeysStorage;
-import com.eyinfo.springcache.storage.StorageUtils;
 
 /**
  * @Author lijinghuan
@@ -25,7 +25,7 @@ public class DeleteStrategy extends BaseQueryStrategy {
         if (TextUtils.isEmpty(objectUnique)) {
             return;
         }
-        StorageUtils.deleteCache(objectUnique);
+        MongoManager.getInstance().remove(objectUnique);
     }
 
     public <T> void deletePlus(DbMethodEntry methodEntry, QueryWrapper<T> queryWrapper) {
@@ -37,6 +37,6 @@ public class DeleteStrategy extends BaseQueryStrategy {
         if (TextUtils.isEmpty(objectUnique)) {
             return;
         }
-        StorageUtils.deleteCache(objectUnique);
+        MongoManager.getInstance().remove(objectUnique);
     }
 }
