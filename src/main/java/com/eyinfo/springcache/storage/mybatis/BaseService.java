@@ -4,20 +4,16 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.eyinfo.foundation.Butterfly;
 import com.eyinfo.foundation.entity.BaseEntity;
 import com.eyinfo.foundation.entity.PageListResponse;
-import com.eyinfo.foundation.enums.Environment;
 import com.eyinfo.foundation.utils.JsonUtils;
 import com.eyinfo.foundation.utils.ObjectJudge;
 import com.eyinfo.foundation.utils.TextUtils;
 import com.eyinfo.springcache.mongo.LogicDeleteDataManager;
 import com.eyinfo.springcache.response.EyResult;
 import com.eyinfo.springcache.storage.DbMethodEntry;
-import com.eyinfo.springcache.storage.StorageConfiguration;
 import com.eyinfo.springcache.storage.StorageManager;
-import com.eyinfo.springcache.storage.StorageUtils;
 import com.eyinfo.springcache.storage.entity.PageConditions;
 import com.eyinfo.springcache.storage.entity.PageRequest;
 import com.github.pagehelper.PageInfo;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -173,13 +169,10 @@ public class BaseService<T extends BaseEntity, M extends BaseMapper<T>> {
         if (ObjectJudge.isNullOrEmpty(list)) {
             return;
         }
-        StorageConfiguration configuration = StorageUtils.getConfiguration();
-        MongoTemplate mongoTemplate = configuration.getMongoTemplate();
-        Environment environment = Environment.getEnvironment(configuration.getActive());
         String targetSql = queryWrapper.getTargetSql();
         for (T t : list) {
             String content = JsonUtils.toStr(t);
-            LogicDeleteDataManager.getInstance().set(mongoTemplate, environment, targetSql, content, 604800000);
+            LogicDeleteDataManager.getInstance().set(targetSql, content, 604800000);
         }
         mapper.deletePlus(queryWrapper);
     }

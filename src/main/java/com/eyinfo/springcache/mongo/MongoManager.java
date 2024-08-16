@@ -6,12 +6,11 @@ import com.eyinfo.foundation.utils.JsonUtils;
 import com.eyinfo.foundation.utils.ObjectJudge;
 import com.eyinfo.springcache.storage.DbMethodEntry;
 import com.eyinfo.springcache.storage.MethodEntry;
-import com.eyinfo.springcache.storage.StorageConfiguration;
-import com.eyinfo.springcache.storage.StorageUtils;
-import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MongoManager extends BaseMongo {
@@ -45,8 +44,7 @@ public class MongoManager extends BaseMongo {
      * @param <T>  缓存数据类型，支持：String、Integer、Double、Float以及可被序列化的对象
      */
     public <T> void save(String key, T data) {
-        StorageConfiguration configuration = StorageUtils.getConfiguration();
-        if (configuration == null || data instanceof Byte) {
+        if (data instanceof Byte) {
             return;
         }
         String content;
@@ -61,9 +59,7 @@ public class MongoManager extends BaseMongo {
         } else {
             return;
         }
-        MongoTemplate mongoTemplate = configuration.getMongoTemplate();
-        Environment environment = Environment.getEnvironment(configuration.getActive());
-        this.set(mongoTemplate, environment, key, content, maxCacheTime);
+        this.set(key, content, maxCacheTime);
     }
 
     /**
@@ -77,13 +73,7 @@ public class MongoManager extends BaseMongo {
      * @return R类型的数据
      */
     public <R, Item> R get(String key, Class<Item> itemClass, Boolean isList) {
-        StorageConfiguration configuration = StorageUtils.getConfiguration();
-        if (configuration == null) {
-            return null;
-        }
-        MongoTemplate mongoTemplate = configuration.getMongoTemplate();
-        Environment environment = Environment.getEnvironment(configuration.getActive());
-        String content = this.getByKey(mongoTemplate, environment, key);
+        String content = this.getByKey(key);
         if (itemClass == String.class) {
             return (R) content;
         }
@@ -113,24 +103,17 @@ public class MongoManager extends BaseMongo {
         return get(key, itemClass, null);
     }
 
-    public void cleanContainsPrefixCache(DbMethodEntry[] methodEntry) {
-        StorageConfiguration configuration = StorageUtils.getConfiguration();
-        if (configuration == null) {
-            return;
-        }
-        MongoTemplate mongoTemplate = configuration.getMongoTemplate();
-        Environment environment = Environment.getEnvironment(configuration.getActive());
+    public void cleanContainsPrefixCache(DbMethodEntry... methodEntry) {
         List<String> keys = Arrays.stream(methodEntry).map(MethodEntry::getCacheSubKey).collect(Collectors.toList());
-        com.eyinfo.springcache.mongo.MongoManager.getInstance().blurDelete(mongoTemplate, environment, keys);
+        this.blurDelete(keys);
+    }
+
+    public void cleanContainsPrefixCache(Collection<DbMethodEntry> entries) {
+        Set<String> keys = entries.stream().map(MethodEntry::getCacheSubKey).collect(Collectors.toSet());
+        this.blurDelete(keys);
     }
 
     public void remove(String key) {
-        StorageConfiguration configuration = StorageUtils.getConfiguration();
-        if (configuration == null) {
-            return;
-        }
-        MongoTemplate mongoTemplate = configuration.getMongoTemplate();
-        Environment environment = Environment.getEnvironment(configuration.getActive());
-        com.eyinfo.springcache.mongo.MongoManager.getInstance().deleteByKey(mongoTemplate, environment, key);
+        this.deleteByKey(key);
     }
 }

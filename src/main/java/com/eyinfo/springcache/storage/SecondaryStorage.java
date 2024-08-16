@@ -1,36 +1,32 @@
 package com.eyinfo.springcache.storage;
 
-import com.eyinfo.foundation.enums.Environment;
 import com.eyinfo.foundation.utils.JsonUtils;
 import com.eyinfo.springcache.mongo.MongoManager;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
+import com.eyinfo.springcache.redis.RedisManager;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class FastStorage {
+public class SecondaryStorage {
 
-    private static FastStorage fastStorage;
+    private static SecondaryStorage secondaryStorage;
 
-    public static FastStorage getInstance() {
-        if (fastStorage == null) {
-            synchronized (FastStorage.class) {
-                if (fastStorage == null) {
-                    fastStorage = new FastStorage();
+    public static SecondaryStorage getInstance() {
+        if (secondaryStorage == null) {
+            synchronized (SecondaryStorage.class) {
+                if (secondaryStorage == null) {
+                    secondaryStorage = new SecondaryStorage();
                 }
             }
         }
-        return fastStorage;
+        return secondaryStorage;
     }
 
-    private final StorageConfiguration configuration;
 
-    private FastStorage() {
-        configuration = StorageUtils.getConfiguration();
+    private SecondaryStorage() {
+
     }
 
     private final Map<String, Object> tempMap = new LinkedHashMap<>();
@@ -44,8 +40,6 @@ public class FastStorage {
      * @param <T>    value数据类型
      */
     public <T> void set(String key, T value, long period) {
-        MongoTemplate mongoTemplate = configuration.getMongoTemplate();
-        Environment environment = Environment.getEnvironment(configuration.getActive());
         String content;
         if (value instanceof String || value instanceof Integer || value instanceof Double || value instanceof Float) {
             content = String.valueOf(value);
@@ -53,9 +47,9 @@ public class FastStorage {
             content = JsonUtils.toStr(value);
         }
         if (period == 0 || period > 30000) {
-            MongoManager.getInstance().set(mongoTemplate, environment, key, content, period);
+            MongoManager.getInstance().set(key, content, period);
         } else {
-            setRedisValue(key, value, period, TimeUnit.MILLISECONDS);
+            RedisManager.getInstance().set(key, value, period, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -93,29 +87,8 @@ public class FastStorage {
         tempMap.put(key, value);
     }
 
-    private <T> T getRedisValue(String key) {
-        RedisTemplate redisTemplate = configuration.getRedisTemplate();
-        ValueOperations<String, T> opsForValue = redisTemplate.opsForValue();
-        String active = configuration.getActive();
-        return opsForValue.get(String.format("%s_%s", active, key));
-    }
-
-    private <T> void setRedisValue(String key, T value, long timeout, TimeUnit unit) {
-        RedisTemplate redisTemplate = configuration.getRedisTemplate();
-        String active = configuration.getActive();
-        redisTemplate.opsForValue().set(String.format("%s_%s", active, key), value, timeout, unit);
-    }
-
-    private void removeRedis(String key) {
-        RedisTemplate redisTemplate = configuration.getRedisTemplate();
-        String active = configuration.getActive();
-        redisTemplate.delete(String.format("%s_%s", active, key));
-    }
-
     private <T, Item> T getMongoValue(String key, Class<Item> itemClass) {
-        MongoTemplate mongoTemplate = configuration.getMongoTemplate();
-        Environment environment = Environment.getEnvironment(configuration.getActive());
-        String content = MongoManager.getInstance().getByKey(mongoTemplate, environment, key);
+        String content = MongoManager.getInstance().getByKey(key);
         if (itemClass == String.class || JsonUtils.isEmpty(content)) {
             return (T) content;
         }
@@ -127,9 +100,7 @@ public class FastStorage {
     }
 
     private void removeMongo(String key) {
-        MongoTemplate mongoTemplate = configuration.getMongoTemplate();
-        Environment environment = Environment.getEnvironment(configuration.getActive());
-        MongoManager.getInstance().deleteByKey(mongoTemplate, environment, key);
+        MongoManager.getInstance().deleteByKey(key);
     }
 
     public <T, Item> T get(String key, Class<Item> itemClass) {
@@ -137,7 +108,7 @@ public class FastStorage {
         if (mapValue != null) {
             return mapValue;
         }
-        T redisValue = getRedisValue(key);
+        T redisValue = RedisManager.getInstance().get(key);
         if (redisValue != null) {
             setMapValue(key, redisValue);
             return redisValue;
@@ -145,7 +116,7 @@ public class FastStorage {
         T mongoValue = getMongoValue(key, itemClass);
         if (mongoValue != null) {
             setMapValue(key, mongoValue);
-            setRedisValue(key, mongoValue, 30, TimeUnit.SECONDS);
+            RedisManager.getInstance().set(key, mongoValue, 30, TimeUnit.SECONDS);
             return mongoValue;
         }
         return null;
@@ -158,7 +129,7 @@ public class FastStorage {
      */
     public void remove(String key) {
         tempMap.remove(key);
-        removeRedis(key);
+        RedisManager.getInstance().remove(key);
         removeMongo(key);
     }
 }

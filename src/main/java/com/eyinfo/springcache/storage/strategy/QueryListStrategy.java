@@ -5,6 +5,7 @@ import com.eyinfo.foundation.utils.ObjectJudge;
 import com.eyinfo.foundation.utils.TextUtils;
 import com.eyinfo.springcache.mongo.MongoManager;
 import com.eyinfo.springcache.storage.DbMethodEntry;
+import com.eyinfo.springcache.storage.SecondaryStorage;
 import com.eyinfo.springcache.storage.entity.SearchCondition;
 import com.github.pagehelper.PageInfo;
 
