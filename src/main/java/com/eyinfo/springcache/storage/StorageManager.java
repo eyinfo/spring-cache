@@ -59,7 +59,7 @@ public class StorageManager {
             @Override
             public PageInfo<R> onQueryCache(DbMethodEntry methodEntry, SearchCondition conditions, Class<R> itemClass) {
                 QueryListStrategy strategy = new QueryListStrategy();
-                return strategy.query(methodEntry, conditions, itemClass, false);
+                return strategy.query(methodEntry, conditions, PageInfo.class, false);
             }
 
             @Override
