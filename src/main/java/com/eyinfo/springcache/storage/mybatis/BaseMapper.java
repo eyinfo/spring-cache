@@ -6,23 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface BaseMapper<T> {
-
-    /**
-     * 选择性插入数据
-     *
-     * @param entity 数据实体
-     * @return 大于表示插入数据成功
-     */
-    int insertSelective(T entity);
-
-    /**
-     * 选择性更新数据
-     *
-     * @param entity 数据实体
-     * @return 大于表示更新数据成功
-     */
-    int updateByPrimaryKeySelective(T entity);
+public interface BaseMapper<T> extends RawItemMapper<T> {
 
     /**
      * 获取单条数据实体

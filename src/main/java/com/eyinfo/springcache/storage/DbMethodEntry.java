@@ -12,8 +12,6 @@ import com.eyinfo.springcache.enums.DataType;
  */
 public class DbMethodEntry extends MethodEntry {
 
-    //用于新增或更新时查询方法名
-    private String queryMethodName;
     //数据类型
     private final DataType dataType;
 
@@ -28,15 +26,6 @@ public class DbMethodEntry extends MethodEntry {
 
     public DbMethodEntry cloneEntry(DataType dataType) {
         return cloneEntry(this.getMethodName(), dataType);
-    }
-
-    public String getQueryMethodName() {
-        return queryMethodName == null ? "find" : queryMethodName;
-    }
-
-    public DbMethodEntry setQueryMethodName(String queryMethodName) {
-        this.queryMethodName = queryMethodName;
-        return this;
     }
 
     public String getDataType() {

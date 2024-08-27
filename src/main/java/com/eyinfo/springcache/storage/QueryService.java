@@ -1,15 +1,19 @@
 package com.eyinfo.springcache.storage;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.eyinfo.foundation.encrypts.MD5Encrypt;
-import com.eyinfo.foundation.entity.BaseEntity;
-import com.eyinfo.foundation.utils.*;
+import com.eyinfo.foundation.utils.ConvertUtils;
+import com.eyinfo.foundation.utils.ObjectJudge;
+import com.eyinfo.foundation.utils.TextUtils;
+import com.eyinfo.foundation.utils.ValidUtils;
 import com.eyinfo.springcache.storage.entity.PageConditions;
 import com.eyinfo.springcache.storage.entity.QueryConditions;
 import com.eyinfo.springcache.storage.entity.SearchCondition;
+import com.eyinfo.springcache.storage.enums.Methods;
 import com.eyinfo.springcache.storage.events.ModelConditions;
 import com.eyinfo.springcache.storage.events.OnCacheStrategy;
 import com.eyinfo.springcache.storage.invoke.InvokeResult;
+import com.eyinfo.springcache.storage.mybatis.BaseMapper;
+import com.eyinfo.springcache.storage.mybatis.PrototypeMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
@@ -28,7 +32,7 @@ import java.util.Map;
  */
 class QueryService extends BaseService {
 
-    public <R, Dao> PageInfo<R> select(Dao dao, Class<R> itemClass, DbMethodEntry methodEntry, PageConditions conditions, OnCacheStrategy<SearchCondition, PageInfo<R>, R> cacheStrategy) {
+    public <Item, Dao extends PrototypeMapper<Item>> PageInfo<Item> select(Dao dao, Class<Item> itemClass, DbMethodEntry methodEntry, PageConditions conditions, OnCacheStrategy<SearchCondition, PageInfo<Item>, Item> cacheStrategy) {
         SearchCondition searchCondition = new SearchCondition();
         QueryWrapper queryWrapper = conditions.getQueryWrapper();
         searchCondition.setQueryWrapper(queryWrapper);
@@ -51,9 +55,9 @@ class QueryService extends BaseService {
             }
         }
         if (cacheStrategy != null) {
-            PageInfo<R> pageInfo = cacheStrategy.onQueryCache(methodEntry, searchCondition, itemClass);
+            PageInfo<Item> pageInfo = cacheStrategy.onQueryCache(methodEntry, searchCondition, itemClass);
             if (pageInfo != null) {
-                List<R> list = pageInfo.getList();
+                List<Item> list = pageInfo.getList();
                 if (!ObjectJudge.isNullOrEmpty(list) && TextUtils.equals(list.get(0).getClass().getSimpleName(), itemClass.getSimpleName())) {
                     return pageInfo;
                 }
@@ -62,102 +66,57 @@ class QueryService extends BaseService {
         return queryDbPageInfo(dao, methodEntry, searchCondition, cacheStrategy, conditions.isMap());
     }
 
-    private <R, Dao, T> PageInfo<R> queryDbPageInfo(Dao dao, DbMethodEntry methodEntry, SearchCondition searchCondition, OnCacheStrategy<SearchCondition, PageInfo<R>, R> cacheStrategy, boolean isMap) {
+    private <Item, Dao extends PrototypeMapper<Item>> PageInfo<Item> queryDbPageInfo(Dao dao, DbMethodEntry methodEntry, SearchCondition searchCondition, OnCacheStrategy<SearchCondition, PageInfo<Item>, Item> cacheStrategy, boolean isMap) {
         PageHelper.startPage(searchCondition.getPageNumber(), searchCondition.getPageSize(), true, true, false);
-        Object result;
-        QueryWrapper<T> queryWrapper = searchCondition.getQueryWrapper();
-        if (queryWrapper == null) {
+        List<Item> result;
+        QueryWrapper queryWrapper = searchCondition.getQueryWrapper();
+        if (queryWrapper == null || !TextUtils.equals(methodEntry.getMethodName(), Methods.getListPlus.name())) {
             if (isMap) {
                 result = selectFromDB(dao, methodEntry, searchCondition.getParams());
             } else {
                 result = selectFromDB(dao, methodEntry, searchCondition);
             }
         } else {
-            result = selectPlusFromDB(dao, methodEntry, searchCondition.getQueryWrapper());
+            if (dao instanceof BaseMapper) {
+                result = ((BaseMapper<?>) dao).getListPlus(queryWrapper);
+            } else {
+                result = selectPlusFromDB(dao, methodEntry, searchCondition.getQueryWrapper());
+            }
         }
-        PageInfo<R> pageInfo = new PageInfo<R>((result instanceof List) ? (List) result : new LinkedList<>());
+        PageInfo<Item> pageInfo = new PageInfo<>((result == null) ? result : new LinkedList<>());
         if (cacheStrategy != null) {
             cacheStrategy.onDataCache(methodEntry, searchCondition, pageInfo);
         }
         return pageInfo;
     }
 
-    public <R, Dao> List<R> select(Dao dao, Class<R> itemClass, DbMethodEntry methodEntry, QueryConditions conditions, OnCacheStrategy<String, List<R>, R> cacheStrategy) {
-        if (cacheStrategy != null) {
-            String conditionSql = tranConditionSql(conditions.getPrecondition(), conditions.getConditions(), conditions.getOrderBy());
-            List<R> list = cacheStrategy.onQueryCache(methodEntry, conditionSql, itemClass);
-            if (!ObjectJudge.isNullOrEmpty(list) && TextUtils.equals(list.get(0).getClass().getSimpleName(), itemClass.getSimpleName())) {
-                return list;
-            }
-        }
-        return queryList(dao, methodEntry, conditions, cacheStrategy);
-    }
-
-    public <R, Dao> List<R> select(Dao dao, Class<R> itemClass, DbMethodEntry methodEntry, List<String> listParams, OnCacheStrategy<String, List<R>, R> cacheStrategy) {
-        if (cacheStrategy != null) {
-            String condition = MD5Encrypt.md5(ConvertUtils.toString(listParams.hashCode()));
-            List<R> list = cacheStrategy.onQueryCache(methodEntry, condition, itemClass);
-            if (!ObjectJudge.isNullOrEmpty(list) && TextUtils.equals(list.get(0).getClass().getSimpleName(), itemClass.getSimpleName())) {
-                return list;
-            }
-        }
-        return queryList(dao, methodEntry, listParams, cacheStrategy);
-    }
-
-    public <R, Dao> List<R> select(Dao dao, Class<R> itemClass, DbMethodEntry methodEntry, HashMap<String, Object> mapParams, OnCacheStrategy<String, List<R>, R> cacheStrategy) {
-        if (cacheStrategy != null) {
-            String condition = MD5Encrypt.md5(ConvertUtils.toString(mapParams.hashCode()));
-            List<R> list = cacheStrategy.onQueryCache(methodEntry, condition, itemClass);
-            if (!ObjectJudge.isNullOrEmpty(list) && TextUtils.equals(list.get(0).getClass().getSimpleName(), itemClass.getSimpleName())) {
-                return list;
-            }
-        }
-        return queryList(dao, methodEntry, mapParams, cacheStrategy);
-    }
-
-    public <R, Dao> List<R> selectPlus(Dao dao, Class itemClass, DbMethodEntry methodEntry, QueryWrapper queryWrapper, OnCacheStrategy<QueryWrapper, List<R>, R> cacheStrategy) {
-        if (cacheStrategy != null) {
-            List<R> list = cacheStrategy.onQueryCache(methodEntry, queryWrapper, itemClass);
-            if (!ObjectJudge.isNullOrEmpty(list) && TextUtils.equals(list.get(0).getClass().getSimpleName(), itemClass.getSimpleName())) {
-                return list;
-            }
-        }
-        return queryListPlus(dao, methodEntry, queryWrapper, cacheStrategy);
-    }
-
-    private <R, Dao> List<R> queryList(Dao dao, DbMethodEntry methodEntry, QueryConditions conditions, OnCacheStrategy<String, List<R>, R> cacheStrategy) {
+    public <Item, Dao extends PrototypeMapper<Item>> List<Item> select(Dao dao, Class<Item> itemClass, DbMethodEntry methodEntry, QueryConditions conditions, OnCacheStrategy<String, List<Item>, Item> cacheStrategy) {
         String conditionSql = tranConditionSql(conditions.getPrecondition(), conditions.getConditions(), conditions.getOrderBy());
-        Object result = selectListFromDB(dao, methodEntry, conditionSql);
-        if (cacheStrategy != null) {
+        if (cacheStrategy == null) {
+            return selectListFromDB(dao, methodEntry, conditionSql);
+        } else {
+            List<Item> list = cacheStrategy.onQueryCache(methodEntry, conditionSql, itemClass);
+            if (!ObjectJudge.isNullOrEmpty(list) && TextUtils.equals(list.get(0).getClass().getSimpleName(), itemClass.getSimpleName())) {
+                return list;
+            }
+            List<Item> result = selectListFromDB(dao, methodEntry, conditionSql);
             cacheStrategy.onDataCache(methodEntry, conditionSql, result);
+            return result;
         }
-        return (result instanceof List) ? (List<R>) result : null;
     }
 
-    private <R, Dao> List<R> queryList(Dao dao, DbMethodEntry methodEntry, List<String> listParams, OnCacheStrategy<String, List<R>, R> cacheStrategy) {
-        Object result = selectListFromDB(dao, methodEntry, listParams);
-        if (cacheStrategy != null) {
-            String condition = MD5Encrypt.md5(ConvertUtils.toString(listParams.hashCode()));
-            cacheStrategy.onDataCache(methodEntry, condition, result);
-        }
-        return (result instanceof List) ? (List<R>) result : null;
-    }
-
-    private <R, Dao> List<R> queryList(Dao dao, DbMethodEntry methodEntry, HashMap<String, Object> mapParams, OnCacheStrategy<String, List<R>, R> cacheStrategy) {
-        Object result = selectListFromDB(dao, methodEntry, mapParams);
-        if (cacheStrategy != null) {
-            String condition = MD5Encrypt.md5(ConvertUtils.toString(mapParams.hashCode()));
-            cacheStrategy.onDataCache(methodEntry, condition, result);
-        }
-        return (result instanceof List) ? (List<R>) result : null;
-    }
-
-    private <R, Dao> List<R> queryListPlus(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper, OnCacheStrategy<QueryWrapper, List<R>, R> cacheStrategy) {
-        List<R> result = selectListPlusFromDB(dao, methodEntry, queryWrapper);
-        if (cacheStrategy != null) {
+    public <Item, Dao extends PrototypeMapper<Item>> List<Item> selectPlus(Dao dao, Class<Item> itemClass, DbMethodEntry methodEntry, QueryWrapper queryWrapper, OnCacheStrategy<QueryWrapper, List<Item>, Item> cacheStrategy) {
+        if (cacheStrategy == null) {
+            return selectListPlusFromDB(dao, methodEntry, queryWrapper);
+        } else {
+            List<Item> list = cacheStrategy.onQueryCache(methodEntry, queryWrapper, itemClass);
+            if (!ObjectJudge.isNullOrEmpty(list) && TextUtils.equals(list.get(0).getClass().getSimpleName(), itemClass.getSimpleName())) {
+                return list;
+            }
+            List<Item> result = selectListPlusFromDB(dao, methodEntry, queryWrapper);
             cacheStrategy.onDataCache(methodEntry, queryWrapper, result);
+            return result;
         }
-        return (result instanceof List) ? result : null;
     }
 
     private String tranConditionSql(String precondition, HashMap<String, Object> conditionsMap, String orderBy) {
@@ -190,47 +149,30 @@ class QueryService extends BaseService {
         return builder.toString();
     }
 
-    public <R extends BaseEntity, Dao, C extends ModelConditions> R select(Dao dao, Class<R> entityClass, DbMethodEntry methodEntry, C conditions, OnCacheStrategy<C, R, R> cacheStrategy, boolean skipCache) {
-        if (TextUtils.isEmpty(methodEntry.getMethodName())) {
-            methodEntry.setMethodName("find");
-        }
+    public <Item, Dao extends PrototypeMapper<Item>, C extends ModelConditions> Item select(Dao dao, Class<Item> entityClass, DbMethodEntry methodEntry, C conditions, OnCacheStrategy<C, Item, Item> cacheStrategy, boolean skipCache) {
         if (cacheStrategy != null && !skipCache) {
-            R cache = cacheStrategy.onQueryCache(methodEntry, conditions, entityClass);
+            Item cache = cacheStrategy.onQueryCache(methodEntry, conditions, entityClass);
             if (cache != null && cache.getClass() == entityClass) {
-                String id = ConvertUtils.toString(GlobalUtils.getPropertiesValue(cache, "id"));
-                if (!TextUtils.isEmpty(id)) {
-                    return cache;
-                }
+                return cache;
             }
         }
-        return queryDbData(dao, methodEntry, conditions, cacheStrategy);
-    }
-
-    public <Dao, C extends ModelConditions> String select(Dao dao, DbMethodEntry methodEntry, C conditions, OnCacheStrategy<C, String, String> cacheStrategy, boolean skipCache) {
-        if (TextUtils.isEmpty(methodEntry.getMethodName())) {
-            methodEntry.setMethodName("find");
-        }
-        if (cacheStrategy != null && !skipCache) {
-            return cacheStrategy.onQueryCache(methodEntry, conditions, null);
-        }
-        return queryStringDbData(dao, methodEntry, conditions, cacheStrategy);
-    }
-
-    private <Dao, C extends ModelConditions, R extends BaseEntity> R queryDbData(Dao dao, DbMethodEntry methodEntry, C conditions, OnCacheStrategy<C, R, R> cacheStrategy) {
         QueryWrapper queryWrapper = conditions.getQueryWrapper();
-        R select;
+        Item select;
         if (queryWrapper == null) {
             select = selectFromDB(dao, methodEntry, conditions.getWhere());
         } else {
             select = selectFromDB(dao, methodEntry, queryWrapper);
         }
-        if (cacheStrategy != null) {
+        if (cacheStrategy != null && !skipCache) {
             cacheStrategy.onDataCache(methodEntry, conditions, select);
         }
         return select;
     }
 
-    private <Dao, C extends ModelConditions> String queryStringDbData(Dao dao, DbMethodEntry methodEntry, C conditions, OnCacheStrategy<C, String, String> cacheStrategy) {
+    public <Dao, C extends ModelConditions> String select(Dao dao, DbMethodEntry methodEntry, C conditions, OnCacheStrategy<C, String, String> cacheStrategy, boolean skipCache) {
+        if (cacheStrategy != null && !skipCache) {
+            return cacheStrategy.onQueryCache(methodEntry, conditions, null);
+        }
         QueryWrapper queryWrapper = conditions.getQueryWrapper();
         String select;
         if (queryWrapper == null) {
@@ -244,10 +186,6 @@ class QueryService extends BaseService {
         return select;
     }
 
-    public <R extends BaseEntity, Dao, C extends ModelConditions> R select(Dao dao, DbMethodEntry methodEntry, Class<R> entityClass, C conditions, OnCacheStrategy<C, R, R> cacheStrategy) {
-        return select(dao, entityClass, methodEntry, conditions, cacheStrategy, false);
-    }
-
     private <R, Dao> R selectFromDB(Dao dao, DbMethodEntry methodEntry, SearchCondition conditions) {
         InvokeResult invokeResult = super.invokeWithString(dao, methodEntry, conditions.getConditionSql());
         if (!invokeResult.isSuccess()) {
@@ -256,7 +194,7 @@ class QueryService extends BaseService {
         return (R) invokeResult.getResult();
     }
 
-    private <R, Dao, T> R selectPlusFromDB(Dao dao, DbMethodEntry methodEntry, QueryWrapper<T> queryWrapper) {
+    private <R, Dao> R selectPlusFromDB(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper) {
         InvokeResult invokeResult = super.invoke(dao, methodEntry, queryWrapper);
         if (!invokeResult.isSuccess()) {
             return null;
@@ -272,20 +210,30 @@ class QueryService extends BaseService {
         return (R) invokeResult.getResult();
     }
 
-    private <Dao, T extends BaseEntity> T selectFromDB(Dao dao, DbMethodEntry methodEntry, String where) {
-        InvokeResult invokeResult = super.invokeWithString(dao, methodEntry, where);
-        if (!invokeResult.isSuccess()) {
-            return null;
+    private <Dao extends PrototypeMapper<T>, T> T selectFromDB(Dao dao, DbMethodEntry methodEntry, String where) {
+        if (dao instanceof BaseMapper && TextUtils.equals(methodEntry.getMethodName(), Methods.getDataPlus.name())) {
+            QueryWrapper queryWrapper = new QueryWrapper<>();
+            queryWrapper.last(where);
+            return (T) ((BaseMapper<T>) dao).getDataPlus(queryWrapper);
+        } else {
+            InvokeResult invokeResult = super.invokeWithString(dao, methodEntry, where);
+            if (!invokeResult.isSuccess()) {
+                return null;
+            }
+            return (T) invokeResult.getResult();
         }
-        return (T) invokeResult.getResult();
     }
 
-    private <Dao, T extends BaseEntity> T selectFromDB(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper) {
-        InvokeResult invokeResult = super.invoke(dao, methodEntry, queryWrapper);
-        if (!invokeResult.isSuccess()) {
-            return null;
+    private <Dao extends PrototypeMapper<T>, T> T selectFromDB(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper) {
+        if (dao instanceof BaseMapper && TextUtils.equals(methodEntry.getMethodName(), Methods.getDataPlus.name())) {
+            return (T) ((BaseMapper<T>) dao).getDataPlus(queryWrapper);
+        } else {
+            InvokeResult invokeResult = super.invoke(dao, methodEntry, queryWrapper);
+            if (!invokeResult.isSuccess()) {
+                return null;
+            }
+            return (T) invokeResult.getResult();
         }
-        return (T) invokeResult.getResult();
     }
 
     private <Dao> String selectStringFromDB(Dao dao, DbMethodEntry methodEntry, String where) {
@@ -304,42 +252,33 @@ class QueryService extends BaseService {
         return (String) invokeResult.getResult();
     }
 
-    private <Dao, T extends BaseEntity> List<T> selectListFromDB(Dao dao, DbMethodEntry methodEntry, String where) {
-        InvokeResult invokeResult = super.invokeWithString(dao, methodEntry, where);
-        if (!invokeResult.isSuccess()) {
-            return null;
+    private <Dao extends PrototypeMapper<T>, T> List<T> selectListFromDB(Dao dao, DbMethodEntry methodEntry, String where) {
+        if (dao instanceof BaseMapper && TextUtils.equals(methodEntry.getMethodName(), Methods.getListPlus.name())) {
+            QueryWrapper queryWrapper = new QueryWrapper<>();
+            queryWrapper.last(where);
+            return ((BaseMapper<T>) dao).getListPlus(queryWrapper);
+        } else {
+            InvokeResult invokeResult = super.invokeWithString(dao, methodEntry, where);
+            if (!invokeResult.isSuccess()) {
+                return null;
+            }
+            return (List<T>) invokeResult.getResult();
         }
-        return (List<T>) invokeResult.getResult();
     }
 
-    private <Dao, T extends BaseEntity> List<T> selectListFromDB(Dao dao, DbMethodEntry methodEntry, List<String> listParams) {
-        InvokeResult invoke = super.invoke(dao, methodEntry, listParams);
-        if (!invoke.isSuccess()) {
-            return null;
+    private <Dao extends PrototypeMapper<T>, T> List<T> selectListPlusFromDB(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper) {
+        if (dao instanceof BaseMapper && TextUtils.equals(methodEntry.getMethodName(), Methods.getListPlus.name())) {
+            return ((BaseMapper<T>) dao).getListPlus(queryWrapper);
+        } else {
+            InvokeResult invoke = super.invoke(dao, methodEntry, queryWrapper);
+            if (!invoke.isSuccess()) {
+                return null;
+            }
+            return (List<T>) invoke.getResult();
         }
-        return (List<T>) invoke.getResult();
-    }
-
-    private <Dao, T extends BaseEntity> List<T> selectListFromDB(Dao dao, DbMethodEntry methodEntry, HashMap<String, Object> mapParams) {
-        InvokeResult invoke = super.invoke(dao, methodEntry, mapParams);
-        if (!invoke.isSuccess()) {
-            return null;
-        }
-        return (List<T>) invoke.getResult();
-    }
-
-    private <Dao, T> List<T> selectListPlusFromDB(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper) {
-        InvokeResult invoke = super.invoke(dao, methodEntry, queryWrapper);
-        if (!invoke.isSuccess()) {
-            return null;
-        }
-        return (List<T>) invoke.getResult();
     }
 
     public void removeCache(DbMethodEntry methodEntry, String where, OnCacheStrategy<String, Void, Void> cacheStrategy) {
-        if (TextUtils.isEmpty(methodEntry.getMethodName())) {
-            methodEntry.setMethodName("find");
-        }
         if (cacheStrategy != null) {
             cacheStrategy.onRemoveCache(methodEntry, where);
         }

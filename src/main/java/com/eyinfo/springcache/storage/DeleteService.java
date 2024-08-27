@@ -2,8 +2,11 @@ package com.eyinfo.springcache.storage;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.eyinfo.foundation.utils.TextUtils;
+import com.eyinfo.springcache.storage.enums.Methods;
 import com.eyinfo.springcache.storage.events.OnDeleteStrategy;
 import com.eyinfo.springcache.storage.invoke.InvokeResult;
+import com.eyinfo.springcache.storage.mybatis.BaseMapper;
+import com.eyinfo.springcache.storage.mybatis.PrototypeMapper;
 
 class DeleteService extends BaseService {
 
@@ -25,21 +28,22 @@ class DeleteService extends BaseService {
         return invokeResult.isSuccess();
     }
 
-    public <Dao, T> void deletePlus(Dao dao, DbMethodEntry methodEntry, QueryWrapper<T> queryWrapper, OnDeleteStrategy<QueryWrapper<T>> deleteStrategy) {
-        if (TextUtils.isEmpty(methodEntry.getMethodName())) {
-            methodEntry.setMethodName("delete");
-        }
+    public <Dao extends PrototypeMapper<?>> void deletePlus(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper, OnDeleteStrategy<QueryWrapper> deleteStrategy) {
         if (!deletePlusFromDB(dao, methodEntry, queryWrapper)) {
             return;
         }
-        if (deleteStrategy == null) {
-            return;
+        if (deleteStrategy != null) {
+            deleteStrategy.onDeleteCache(methodEntry, queryWrapper);
         }
-        deleteStrategy.onDeleteCache(methodEntry, queryWrapper);
     }
 
-    private <Dao, T> boolean deletePlusFromDB(Dao dao, DbMethodEntry methodEntry, QueryWrapper<T> queryWrapper) {
-        InvokeResult invokeResult = super.invoke(dao, methodEntry, queryWrapper);
-        return invokeResult.isSuccess();
+    private <Dao extends PrototypeMapper<?>> boolean deletePlusFromDB(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper) {
+        if (dao instanceof BaseMapper<?> && !TextUtils.equals(methodEntry.getMethodName(), Methods.deletePlus.name())) {
+            ((BaseMapper<?>) dao).deletePlus(queryWrapper);
+            return true;
+        } else {
+            InvokeResult invokeResult = super.invoke(dao, methodEntry, queryWrapper);
+            return invokeResult.isSuccess();
+        }
     }
 }

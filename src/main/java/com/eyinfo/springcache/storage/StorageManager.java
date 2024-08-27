@@ -1,20 +1,18 @@
 package com.eyinfo.springcache.storage;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.eyinfo.foundation.entity.BaseEntity;
 import com.eyinfo.foundation.utils.TextUtils;
 import com.eyinfo.springcache.storage.entity.ModelCacheConditions;
 import com.eyinfo.springcache.storage.entity.PageConditions;
-import com.eyinfo.springcache.storage.entity.QueryConditions;
 import com.eyinfo.springcache.storage.entity.SearchCondition;
 import com.eyinfo.springcache.storage.events.OnCacheStrategy;
+import com.eyinfo.springcache.storage.mybatis.PrototypeMapper;
 import com.eyinfo.springcache.storage.strategy.DeleteStrategy;
 import com.eyinfo.springcache.storage.strategy.QueryListStrategy;
 import com.eyinfo.springcache.storage.strategy.QueryStrategy;
 import com.github.pagehelper.PageInfo;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -43,21 +41,25 @@ public class StorageManager {
         return storageManager;
     }
 
-    public <Dao, T extends BaseEntity> long insertOrUpdate(Dao dao, DbMethodEntry methodEntry, T entity, boolean skipCache) {
-        return insertOrUpdateService.insertOrUpdate(dao, methodEntry, entity, skipCache);
-    }
-
-    public <Dao, T extends BaseEntity> long insertOrUpdate(Dao dao, DbMethodEntry methodEntry, T entity) {
-        return this.insertOrUpdate(dao, methodEntry, entity, false);
-    }
-
-    public <R, Dao> PageInfo<R> queryPage(Dao dao, Class<R> itemClass, DbMethodEntry methodEntry, PageConditions conditions, boolean skipCache) {
+    /**
+     * 查询分页数据
+     *
+     * @param dao         table mapper
+     * @param itemClass   data class
+     * @param methodEntry methodEntry
+     * @param conditions  查询条件
+     * @param skipCache   true-查询之后缓存数据；false-直接返回数据；
+     * @param <Item>      数据类型
+     * @param <Dao>       mapper type
+     * @return PageInfo分页数据
+     */
+    public <Item, Dao extends PrototypeMapper<Item>> PageInfo<Item> queryPage(Dao dao, Class<Item> itemClass, DbMethodEntry methodEntry, PageConditions conditions, boolean skipCache) {
         if (skipCache) {
             return queryService.select(dao, itemClass, methodEntry, conditions, null);
         }
-        return queryService.select(dao, itemClass, methodEntry, conditions, new OnCacheStrategy<SearchCondition, PageInfo<R>, R>() {
+        return queryService.select(dao, itemClass, methodEntry, conditions, new OnCacheStrategy<SearchCondition, PageInfo<Item>, Item>() {
             @Override
-            public PageInfo<R> onQueryCache(DbMethodEntry methodEntry, SearchCondition conditions, Class<R> itemClass) {
+            public PageInfo<Item> onQueryCache(DbMethodEntry methodEntry, SearchCondition conditions, Class<Item> itemClass) {
                 QueryListStrategy strategy = new QueryListStrategy();
                 return strategy.query(methodEntry, conditions, PageInfo.class, false);
             }
@@ -70,62 +72,36 @@ public class StorageManager {
         });
     }
 
-    public <R, Dao> PageInfo<R> queryPage(Dao dao, Class itemClass, DbMethodEntry methodEntry, PageConditions conditions) {
+    /**
+     * 查询分页数据
+     *
+     * @param dao         table mapper
+     * @param itemClass   data class
+     * @param methodEntry methodEntry
+     * @param conditions  查询条件
+     * @param <Item>      数据类型
+     * @param <Dao>       mapper type
+     * @return PageInfo分页数据
+     */
+    public <Item, Dao extends PrototypeMapper<Item>> PageInfo<Item> queryPage(Dao dao, Class itemClass, DbMethodEntry methodEntry, PageConditions conditions) {
         return queryPage(dao, itemClass, methodEntry, conditions, false);
     }
 
-    public <R, Dao> List<R> queryList(Dao dao, Class<R> itemClass, DbMethodEntry methodEntry, QueryConditions conditions) {
-        return queryService.select(dao, itemClass, methodEntry, conditions, new OnCacheStrategy<String, List<R>, R>() {
+    /**
+     * 查询数据列表
+     *
+     * @param dao          table mapper
+     * @param itemClass    data class
+     * @param methodEntry  methodEntry
+     * @param queryWrapper 查询条件
+     * @param <Item>       数据类型
+     * @param <Dao>        mapper type
+     * @return 数据列表
+     */
+    public <Item, Dao extends PrototypeMapper<Item>> List<Item> queryListPlus(Dao dao, Class<Item> itemClass, DbMethodEntry methodEntry, QueryWrapper queryWrapper) {
+        return queryService.selectPlus(dao, itemClass, methodEntry, queryWrapper, new OnCacheStrategy<QueryWrapper, List<Item>, Item>() {
             @Override
-            public List<R> onQueryCache(DbMethodEntry methodEntry, String conditions, Class<R> itemClass) {
-                QueryListStrategy strategy = new QueryListStrategy();
-                return strategy.query(methodEntry, conditions, itemClass, true);
-            }
-
-            @Override
-            public void onDataCache(DbMethodEntry methodEntry, String conditions, Object data) {
-                QueryListStrategy strategy = new QueryListStrategy();
-                strategy.save(methodEntry, conditions, data);
-            }
-        });
-    }
-
-    public <R, Dao> List<R> queryList(Dao dao, Class<R> itemClass, DbMethodEntry methodEntry, List<String> listParams) {
-        return queryService.select(dao, itemClass, methodEntry, listParams, new OnCacheStrategy<String, List<R>, R>() {
-            @Override
-            public List<R> onQueryCache(DbMethodEntry methodEntry, String conditions, Class<R> itemClass) {
-                QueryListStrategy strategy = new QueryListStrategy();
-                return strategy.query(methodEntry, conditions, itemClass, true);
-            }
-
-            @Override
-            public void onDataCache(DbMethodEntry methodEntry, String conditions, Object data) {
-                QueryListStrategy strategy = new QueryListStrategy();
-                strategy.save(methodEntry, conditions, data);
-            }
-        });
-    }
-
-    public <R, Dao> List<R> queryList(Dao dao, Class<R> itemClass, DbMethodEntry methodEntry, HashMap<String, Object> mapParams) {
-        return queryService.select(dao, itemClass, methodEntry, mapParams, new OnCacheStrategy<String, List<R>, R>() {
-            @Override
-            public List<R> onQueryCache(DbMethodEntry methodEntry, String conditions, Class<R> itemClass) {
-                QueryListStrategy strategy = new QueryListStrategy();
-                return strategy.query(methodEntry, conditions, itemClass, true);
-            }
-
-            @Override
-            public void onDataCache(DbMethodEntry methodEntry, String conditions, Object data) {
-                QueryListStrategy strategy = new QueryListStrategy();
-                strategy.save(methodEntry, conditions, data);
-            }
-        });
-    }
-
-    public <R, Dao> List<R> queryListPlus(Dao dao, Class<R> itemClass, DbMethodEntry methodEntry, QueryWrapper queryWrapper) {
-        return queryService.selectPlus(dao, itemClass, methodEntry, queryWrapper, new OnCacheStrategy<QueryWrapper, List<R>, R>() {
-            @Override
-            public List<R> onQueryCache(DbMethodEntry methodEntry, QueryWrapper queryWrapper, Class<R> targetClass) {
+            public List<Item> onQueryCache(DbMethodEntry methodEntry, QueryWrapper queryWrapper, Class<Item> targetClass) {
                 QueryListStrategy strategy = new QueryListStrategy();
                 return strategy.queryPlus(methodEntry, queryWrapper, targetClass, true);
             }
@@ -138,38 +114,29 @@ public class StorageManager {
         });
     }
 
-    public <R extends BaseEntity, Dao> R queryModel(Dao dao, DbMethodEntry methodEntry, Class<R> entityClass, String where, boolean skipCache, boolean isMergeQuery) {
-        if (dao == null || methodEntry == null || TextUtils.isEmpty(where)) {
-            return null;
-        }
-        ModelCacheConditions conditions = new ModelCacheConditions();
-        conditions.setWhere(where);
-        conditions.setMergeQuery(isMergeQuery);
-        return queryService.select(dao, entityClass, methodEntry, conditions, new OnCacheStrategy<ModelCacheConditions, R, R>() {
-            @Override
-            public R onQueryCache(DbMethodEntry methodEntry, ModelCacheConditions conditions, Class<R> entityClass) {
-                QueryStrategy strategy = new QueryStrategy();
-                return strategy.query(methodEntry, conditions.getWhere(), conditions.isMergeQuery(), entityClass, false);
-            }
-
-            @Override
-            public void onDataCache(DbMethodEntry methodEntry, ModelCacheConditions conditions, Object data) {
-                QueryStrategy strategy = new QueryStrategy();
-                strategy.save(methodEntry, conditions.getWhere(), data, conditions.isMergeQuery());
-            }
-        }, skipCache);
-    }
-
-    public <R extends BaseEntity, Dao> R queryModelPlus(Dao dao, DbMethodEntry methodEntry, Class<R> entityClass, QueryWrapper queryWrapper, boolean skipCache, boolean isMergeQuery) {
+    /**
+     * 查询数据
+     *
+     * @param dao          table mapper
+     * @param methodEntry  methodEntry
+     * @param entityClass  data class
+     * @param queryWrapper 查询条件
+     * @param skipCache    true-查询之后缓存数据；false-直接返回数据；
+     * @param isMergeQuery true-在查询同一对象数据时，合并数据的缓存策略；false-不做合并处理；
+     * @param <T>          数据类型
+     * @param <Dao>        mapper type
+     * @return
+     */
+    public <T, Dao extends PrototypeMapper<T>> T queryModelPlus(Dao dao, DbMethodEntry methodEntry, Class<T> entityClass, QueryWrapper queryWrapper, boolean skipCache, boolean isMergeQuery) {
         if (dao == null || methodEntry == null || queryWrapper == null) {
             return null;
         }
         ModelCacheConditions conditions = new ModelCacheConditions();
         conditions.setQueryWrapper(queryWrapper);
         conditions.setMergeQuery(isMergeQuery);
-        return queryService.select(dao, entityClass, methodEntry, conditions, new OnCacheStrategy<ModelCacheConditions, R, R>() {
+        return queryService.select(dao, entityClass, methodEntry, conditions, new OnCacheStrategy<ModelCacheConditions, T, T>() {
             @Override
-            public R onQueryCache(DbMethodEntry methodEntry, ModelCacheConditions conditions, Class<R> targetClass) {
+            public T onQueryCache(DbMethodEntry methodEntry, ModelCacheConditions conditions, Class<T> targetClass) {
                 QueryStrategy strategy = new QueryStrategy();
                 return strategy.queryPlus(methodEntry, conditions.getQueryWrapper(), conditions.isMergeQuery(), targetClass, false);
             }
@@ -182,29 +149,7 @@ public class StorageManager {
         }, skipCache);
     }
 
-    public <Dao> String queryModel(Dao dao, DbMethodEntry methodEntry, String where, boolean skipCache, boolean isMergeQuery) {
-        if (dao == null || methodEntry == null || TextUtils.isEmpty(where)) {
-            return null;
-        }
-        ModelCacheConditions conditions = new ModelCacheConditions();
-        conditions.setWhere(where);
-        conditions.setMergeQuery(isMergeQuery);
-        return queryService.select(dao, methodEntry, conditions, new OnCacheStrategy<ModelCacheConditions, String, String>() {
-            @Override
-            public String onQueryCache(DbMethodEntry methodEntry, ModelCacheConditions conditions, Class<String> targetClass) {
-                QueryStrategy strategy = new QueryStrategy();
-                return strategy.query(methodEntry, conditions.getWhere(), conditions.isMergeQuery(), targetClass, false);
-            }
-
-            @Override
-            public void onDataCache(DbMethodEntry methodEntry, ModelCacheConditions conditions, Object data) {
-                QueryStrategy strategy = new QueryStrategy();
-                strategy.save(methodEntry, conditions.getWhere(), data, conditions.isMergeQuery());
-            }
-        }, skipCache);
-    }
-
-    public <Dao, T> String queryModelPlus(Dao dao, DbMethodEntry methodEntry, QueryWrapper<T> queryWrapper, boolean skipCache, boolean isMergeQuery) {
+    public <Dao> String queryModelPlus(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper, boolean skipCache, boolean isMergeQuery) {
         if (dao == null || methodEntry == null || queryWrapper == null) {
             return null;
         }
@@ -224,67 +169,101 @@ public class StorageManager {
                 strategy.savePlus(methodEntry, conditions.getQueryWrapper(), data, conditions.isMergeQuery());
             }
         }, skipCache);
-    }
-
-    public <Dao> String queryModel(Dao dao, DbMethodEntry methodEntry, String where, boolean isMergeQuery) {
-        return queryModel(dao, methodEntry, where, false, isMergeQuery);
     }
 
     public <Dao, T> String queryModelPlus(Dao dao, DbMethodEntry methodEntry, QueryWrapper<T> queryWrapper, boolean isMergeQuery) {
         return queryModelPlus(dao, methodEntry, queryWrapper, false, isMergeQuery);
     }
 
-    public <Dao> String queryModel(Dao dao, DbMethodEntry methodEntry, String where) {
-        return queryModel(dao, methodEntry, where, true);
-    }
-
     public <Dao, T> String queryModelPlus(Dao dao, DbMethodEntry methodEntry, QueryWrapper<T> queryWrapper) {
         return queryModelPlus(dao, methodEntry, queryWrapper, true);
     }
 
-    public <R extends BaseEntity, Dao> R queryModel(Dao dao, DbMethodEntry methodEntry, Class<R> entityClass, String where, boolean isMergeQuery) {
-        return queryModel(dao, methodEntry, entityClass, where, false, isMergeQuery);
-    }
-
-    public <R extends BaseEntity, Dao> R queryModelPlus(Dao dao, DbMethodEntry methodEntry, Class<R> entityClass, QueryWrapper queryWrapper, boolean isMergeQuery) {
+    /**
+     * 查询数据
+     *
+     * @param dao          table mapper
+     * @param methodEntry  methodEntry
+     * @param entityClass  data class
+     * @param queryWrapper 查询条件
+     * @param isMergeQuery true-在查询同一对象数据时，合并数据的缓存策略；false-不做合并处理；
+     * @param <T>          数据类型
+     * @param <Dao>        mapper type
+     * @return
+     */
+    public <T, Dao extends PrototypeMapper<T>> T queryModelPlus(Dao dao, DbMethodEntry methodEntry, Class<T> entityClass, QueryWrapper queryWrapper, boolean isMergeQuery) {
         return queryModelPlus(dao, methodEntry, entityClass, queryWrapper, false, isMergeQuery);
     }
 
-    public <R extends BaseEntity, Dao> R queryModel(Dao dao, DbMethodEntry methodEntry, Class<R> entityClass, String where) {
-        return queryModel(dao, methodEntry, entityClass, where, true);
-    }
-
-    public <R extends BaseEntity, Dao, T> R queryModelPlus(Dao dao, DbMethodEntry methodEntry, Class<R> entityClass, QueryWrapper<T> queryWrapper) {
+    /**
+     * 查询数据
+     *
+     * @param dao          table mapper
+     * @param methodEntry  methodEntry
+     * @param entityClass  data class
+     * @param queryWrapper 查询条件
+     * @param <T>          数据类型
+     * @param <Dao>        mapper type
+     * @return
+     */
+    public <T, Dao extends PrototypeMapper<T>> T queryModelPlus(Dao dao, DbMethodEntry methodEntry, Class<T> entityClass, QueryWrapper queryWrapper) {
         return queryModelPlus(dao, methodEntry, entityClass, queryWrapper, true);
     }
 
-    public <R extends BaseEntity, Dao> R queryModelById(Dao dao, DbMethodEntry methodEntry, Class<R> entityClass, String idValue, boolean skipCache, boolean isMergeQuery) {
-        if (dao == null || methodEntry == null || entityClass == null || TextUtils.isEmpty(idValue)) {
+    /**
+     * 查询数据
+     *
+     * @param dao          table mapper
+     * @param methodEntry  methodEntry
+     * @param entityClass  data class
+     * @param idValue      id数据
+     * @param skipCache    true-查询之后缓存数据；false-直接返回数据；
+     * @param isMergeQuery true-在查询同一对象数据时，合并数据的缓存策略；false-不做合并处理；
+     * @param <T>          数据类型
+     * @param <Dao>        mapper type
+     * @return
+     */
+    public <T, Dao extends PrototypeMapper<T>> T queryModelById(Dao dao, DbMethodEntry methodEntry, Class<T> entityClass, String idValue, boolean skipCache, boolean isMergeQuery) {
+        if (entityClass == null || TextUtils.isEmpty(idValue)) {
             return null;
         }
-        String where = String.format(" where `id`='%s'", idValue);
-        return queryModel(dao, methodEntry, entityClass, where, isMergeQuery);
+        QueryWrapper<T> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id", idValue);
+        return queryModelPlus(dao, methodEntry, entityClass, queryWrapper, skipCache, isMergeQuery);
     }
 
-    public <R extends BaseEntity, Dao> R queryModelById(Dao dao, DbMethodEntry methodEntry, Class<R> entityClass, String idValue, boolean isMergeQuery) {
+    /**
+     * 查询数据
+     *
+     * @param dao          table mapper
+     * @param methodEntry  methodEntry
+     * @param entityClass  data class
+     * @param idValue      id数据
+     * @param isMergeQuery true-在查询同一对象数据时，合并数据的缓存策略；false-不做合并处理；
+     * @param <T>          数据类型
+     * @param <Dao>        mapper type
+     * @return
+     */
+    public <T, Dao extends PrototypeMapper<T>> T queryModelById(Dao dao, DbMethodEntry methodEntry, Class<T> entityClass, String idValue, boolean isMergeQuery) {
         return queryModelById(dao, methodEntry, entityClass, idValue, false, isMergeQuery);
     }
 
-    public <R extends BaseEntity, Dao> R queryModelById(Dao dao, DbMethodEntry methodEntry, Class<R> entityClass, String idValue) {
+    /**
+     * 查询数据
+     *
+     * @param dao         table mapper
+     * @param methodEntry methodEntry
+     * @param entityClass data class
+     * @param idValue     id数据
+     * @param <T>         数据类型
+     * @param <Dao>       mapper type
+     * @return
+     */
+    public <T, Dao extends PrototypeMapper<T>> T queryModelById(Dao dao, DbMethodEntry methodEntry, Class<T> entityClass, String idValue) {
         return queryModelById(dao, methodEntry, entityClass, idValue, true);
     }
 
-    public <Dao> void delete(Dao dao, DbMethodEntry methodEntry, String where) {
-        if (dao == null || methodEntry == null || TextUtils.isEmpty(where)) {
-            return;
-        }
-        deleteService.delete(dao, methodEntry, where, (methodEntry1, where1) -> {
-            DeleteStrategy strategy = new DeleteStrategy();
-            strategy.delete(methodEntry1, where1);
-        });
-    }
-
-    public <Dao, T> void deletePlus(Dao dao, DbMethodEntry methodEntry, QueryWrapper<T> queryWrapper) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public <Dao extends PrototypeMapper<?>> void deletePlus(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         if (dao == null || methodEntry == null || queryWrapper == null) {
             return;
         }
@@ -292,14 +271,6 @@ public class StorageManager {
             DeleteStrategy strategy = new DeleteStrategy();
             strategy.deletePlus(methodEntry1, queryWrapper1);
         });
-    }
-
-    public <Dao> void delete(Dao dao, DbMethodEntry methodEntry, Class<?> entityClass, String idValue) {
-        if (dao == null || methodEntry == null || entityClass == null || TextUtils.isEmpty(idValue)) {
-            return;
-        }
-        String where = String.format(" `id`='%s'", idValue);
-        delete(dao, methodEntry, where);
     }
 
     //清除缓存
