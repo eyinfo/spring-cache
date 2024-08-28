@@ -133,12 +133,12 @@ public class BaseService<T extends BaseEntity, M extends BaseMapper<T>> {
      * @param mapper       mapper
      * @param page         查询分页
      * @param limit        每页显示大小
-     * @param queryWrapper 查询条件
      * @param itemClass    单条数据class类型
      * @param methodEntry  查询缓存定义
+     * @param queryWrapper 查询条件
      * @return
      */
-    public PageListResponse<List<T>> getPageList(M mapper, int page, int limit, QueryWrapper queryWrapper, Class<T> itemClass, DbMethodEntry methodEntry) {
+    public PageListResponse<List<T>> getPageList(M mapper, int page, int limit, Class<T> itemClass, DbMethodEntry methodEntry, QueryWrapper queryWrapper) {
         return this.getPageList(mapper, page, limit, queryWrapper, itemClass, methodEntry, false);
     }
 

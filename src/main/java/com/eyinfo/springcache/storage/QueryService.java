@@ -18,7 +18,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -83,7 +82,7 @@ class QueryService extends BaseService {
                 result = selectPlusFromDB(dao, methodEntry, searchCondition.getQueryWrapper());
             }
         }
-        PageInfo<Item> pageInfo = new PageInfo<>((result == null) ? result : new LinkedList<>());
+        PageInfo<Item> pageInfo = PageInfo.of(result);
         if (cacheStrategy != null) {
             cacheStrategy.onDataCache(methodEntry, searchCondition, pageInfo);
         }
