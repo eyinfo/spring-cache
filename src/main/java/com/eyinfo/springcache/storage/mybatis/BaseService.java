@@ -4,17 +4,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.eyinfo.foundation.Butterfly;
 import com.eyinfo.foundation.entity.BaseEntity;
 import com.eyinfo.foundation.entity.PageListResponse;
-import com.eyinfo.foundation.utils.JsonUtils;
-import com.eyinfo.foundation.utils.ObjectJudge;
 import com.eyinfo.foundation.utils.TextUtils;
-import com.eyinfo.springcache.mongo.LogicDeleteDataManager;
 import com.eyinfo.springcache.response.EyResult;
 import com.eyinfo.springcache.storage.DbMethodEntry;
 import com.eyinfo.springcache.storage.StorageManager;
 import com.eyinfo.springcache.storage.entity.PageConditions;
 import com.eyinfo.springcache.storage.entity.PageRequest;
 import com.github.pagehelper.PageInfo;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -156,24 +152,11 @@ public class BaseService<T extends BaseEntity, M extends BaseMapper<T>> {
         return this.getPageList(mapper, page, limit, null, itemClass, methodEntry, false);
     }
 
-    /**
-     * 逻辑删除（这里建议加分布式事务处理）
-     * 删除后数据保留7天
-     *
-     * @param mapper       mapper
-     * @param queryWrapper 查询条件
-     */
-    @Transactional
-    public void logicDelete(M mapper, QueryWrapper<T> queryWrapper) {
-        List<T> list = mapper.getListPlus(queryWrapper);
-        if (ObjectJudge.isNullOrEmpty(list)) {
-            return;
-        }
-        String targetSql = queryWrapper.getTargetSql();
-        for (T t : list) {
-            String content = JsonUtils.toStr(t);
-            LogicDeleteDataManager.getInstance().set(targetSql, content, 604800000);
-        }
-        mapper.deletePlus(queryWrapper);
+    public boolean isExist(M mapper, QueryWrapper queryWrapper) {
+        return mapper.countPlus(queryWrapper) > 0;
+    }
+
+    public boolean isExist(T entity) {
+        return entity != null && !TextUtils.isEmpty(entity.getId());
     }
 }
