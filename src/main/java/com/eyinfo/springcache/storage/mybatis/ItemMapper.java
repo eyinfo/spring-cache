@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface BaseMapper<T> extends RawItemMapper<T> {
+public interface ItemMapper<T> extends RawItemMapper<T> {
 
     /**
      * 获取单条数据实体

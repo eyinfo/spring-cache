@@ -12,7 +12,7 @@ import com.eyinfo.springcache.storage.enums.Methods;
 import com.eyinfo.springcache.storage.events.ModelConditions;
 import com.eyinfo.springcache.storage.events.OnCacheStrategy;
 import com.eyinfo.springcache.storage.invoke.InvokeResult;
-import com.eyinfo.springcache.storage.mybatis.BaseMapper;
+import com.eyinfo.springcache.storage.mybatis.ItemMapper;
 import com.eyinfo.springcache.storage.mybatis.PrototypeMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -76,8 +76,8 @@ class QueryService extends BaseService {
                 result = selectFromDB(dao, methodEntry, searchCondition);
             }
         } else {
-            if (dao instanceof BaseMapper) {
-                result = ((BaseMapper<?>) dao).getListPlus(queryWrapper);
+            if (dao instanceof ItemMapper) {
+                result = ((ItemMapper<?>) dao).getListPlus(queryWrapper);
             } else {
                 result = selectPlusFromDB(dao, methodEntry, searchCondition.getQueryWrapper());
             }
@@ -210,10 +210,10 @@ class QueryService extends BaseService {
     }
 
     private <Dao extends PrototypeMapper<T>, T> T selectFromDB(Dao dao, DbMethodEntry methodEntry, String where) {
-        if (dao instanceof BaseMapper && TextUtils.equals(methodEntry.getMethodName(), Methods.getDataPlus.name())) {
+        if (dao instanceof ItemMapper && TextUtils.equals(methodEntry.getMethodName(), Methods.getDataPlus.name())) {
             QueryWrapper queryWrapper = new QueryWrapper<>();
             queryWrapper.last(where);
-            return (T) ((BaseMapper<T>) dao).getDataPlus(queryWrapper);
+            return (T) ((ItemMapper<T>) dao).getDataPlus(queryWrapper);
         } else {
             InvokeResult invokeResult = super.invokeWithString(dao, methodEntry, where);
             if (!invokeResult.isSuccess()) {
@@ -224,8 +224,8 @@ class QueryService extends BaseService {
     }
 
     private <Dao extends PrototypeMapper<T>, T> T selectFromDB(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper) {
-        if (dao instanceof BaseMapper && TextUtils.equals(methodEntry.getMethodName(), Methods.getDataPlus.name())) {
-            return (T) ((BaseMapper<T>) dao).getDataPlus(queryWrapper);
+        if (dao instanceof ItemMapper && TextUtils.equals(methodEntry.getMethodName(), Methods.getDataPlus.name())) {
+            return (T) ((ItemMapper<T>) dao).getDataPlus(queryWrapper);
         } else {
             InvokeResult invokeResult = super.invoke(dao, methodEntry, queryWrapper);
             if (!invokeResult.isSuccess()) {
@@ -252,10 +252,10 @@ class QueryService extends BaseService {
     }
 
     private <Dao extends PrototypeMapper<T>, T> List<T> selectListFromDB(Dao dao, DbMethodEntry methodEntry, String where) {
-        if (dao instanceof BaseMapper && TextUtils.equals(methodEntry.getMethodName(), Methods.getListPlus.name())) {
+        if (dao instanceof ItemMapper && TextUtils.equals(methodEntry.getMethodName(), Methods.getListPlus.name())) {
             QueryWrapper queryWrapper = new QueryWrapper<>();
             queryWrapper.last(where);
-            return ((BaseMapper<T>) dao).getListPlus(queryWrapper);
+            return ((ItemMapper<T>) dao).getListPlus(queryWrapper);
         } else {
             InvokeResult invokeResult = super.invokeWithString(dao, methodEntry, where);
             if (!invokeResult.isSuccess()) {
@@ -266,8 +266,8 @@ class QueryService extends BaseService {
     }
 
     private <Dao extends PrototypeMapper<T>, T> List<T> selectListPlusFromDB(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper) {
-        if (dao instanceof BaseMapper && TextUtils.equals(methodEntry.getMethodName(), Methods.getListPlus.name())) {
-            return ((BaseMapper<T>) dao).getListPlus(queryWrapper);
+        if (dao instanceof ItemMapper && TextUtils.equals(methodEntry.getMethodName(), Methods.getListPlus.name())) {
+            return ((ItemMapper<T>) dao).getListPlus(queryWrapper);
         } else {
             InvokeResult invoke = super.invoke(dao, methodEntry, queryWrapper);
             if (!invoke.isSuccess()) {

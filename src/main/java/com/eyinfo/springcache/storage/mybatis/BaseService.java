@@ -1,10 +1,8 @@
 package com.eyinfo.springcache.storage.mybatis;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.eyinfo.foundation.Butterfly;
 import com.eyinfo.foundation.entity.BaseEntity;
 import com.eyinfo.foundation.entity.PageListResponse;
-import com.eyinfo.foundation.utils.TextUtils;
 import com.eyinfo.springcache.response.EyResult;
 import com.eyinfo.springcache.storage.DbMethodEntry;
 import com.eyinfo.springcache.storage.StorageManager;
@@ -14,7 +12,7 @@ import com.github.pagehelper.PageInfo;
 
 import java.util.List;
 
-public class BaseService<T extends BaseEntity, M extends BaseMapper<T>> {
+public class BaseService<T extends BaseEntity, M extends ItemMapper<T>> {
 
     /**
      * 查询单条数据
@@ -39,8 +37,7 @@ public class BaseService<T extends BaseEntity, M extends BaseMapper<T>> {
      * @return 数据id
      */
     public int insertOrUpdate(M mapper, T entity) {
-        if (TextUtils.isEmpty(entity.getId())) {
-            entity.setId(Butterfly.getInstance().nextIdWith());
+        if (entity.getId() == null || entity.getId() == 0) {
             return mapper.insertSelective(entity);
         } else {
             return mapper.updateByPrimaryKeySelective(entity);
@@ -157,6 +154,6 @@ public class BaseService<T extends BaseEntity, M extends BaseMapper<T>> {
     }
 
     public boolean isExist(T entity) {
-        return entity != null && !TextUtils.isEmpty(entity.getId());
+        return entity != null && entity.getId() > 0;
     }
 }

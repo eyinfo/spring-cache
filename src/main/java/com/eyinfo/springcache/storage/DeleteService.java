@@ -5,7 +5,7 @@ import com.eyinfo.foundation.utils.TextUtils;
 import com.eyinfo.springcache.storage.enums.Methods;
 import com.eyinfo.springcache.storage.events.OnDeleteStrategy;
 import com.eyinfo.springcache.storage.invoke.InvokeResult;
-import com.eyinfo.springcache.storage.mybatis.BaseMapper;
+import com.eyinfo.springcache.storage.mybatis.ItemMapper;
 import com.eyinfo.springcache.storage.mybatis.PrototypeMapper;
 
 class DeleteService extends BaseService {
@@ -38,8 +38,8 @@ class DeleteService extends BaseService {
     }
 
     private <Dao extends PrototypeMapper<?>> boolean deletePlusFromDB(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper) {
-        if (dao instanceof BaseMapper<?> && !TextUtils.equals(methodEntry.getMethodName(), Methods.deletePlus.name())) {
-            ((BaseMapper<?>) dao).deletePlus(queryWrapper);
+        if (dao instanceof ItemMapper<?> && !TextUtils.equals(methodEntry.getMethodName(), Methods.deletePlus.name())) {
+            ((ItemMapper<?>) dao).deletePlus(queryWrapper);
             return true;
         } else {
             InvokeResult invokeResult = super.invoke(dao, methodEntry, queryWrapper);
