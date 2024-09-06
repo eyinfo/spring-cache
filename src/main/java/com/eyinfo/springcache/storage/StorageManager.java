@@ -12,7 +12,6 @@ import com.eyinfo.springcache.storage.strategy.QueryListStrategy;
 import com.eyinfo.springcache.storage.strategy.QueryStrategy;
 import com.github.pagehelper.PageInfo;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**
@@ -65,9 +64,9 @@ public class StorageManager {
             }
 
             @Override
-            public void onDataCache(DbMethodEntry methodEntry, SearchCondition conditions, Object data) {
+            public void onDataCache(DbMethodEntry methodEntry, SearchCondition conditions, Object data, Class<Item> itemClass) {
                 QueryListStrategy strategy = new QueryListStrategy();
-                strategy.save(methodEntry, conditions, data);
+                strategy.save(methodEntry, conditions, data, itemClass);
             }
         });
     }
@@ -107,9 +106,9 @@ public class StorageManager {
             }
 
             @Override
-            public void onDataCache(DbMethodEntry methodEntry, QueryWrapper queryWrapper, Object data) {
+            public void onDataCache(DbMethodEntry methodEntry, QueryWrapper queryWrapper, Object data, Class<Item> targetClass) {
                 QueryListStrategy strategy = new QueryListStrategy();
-                strategy.savePlus(methodEntry, queryWrapper, data);
+                strategy.savePlus(methodEntry, queryWrapper, data, targetClass);
             }
         });
     }
@@ -142,9 +141,9 @@ public class StorageManager {
             }
 
             @Override
-            public void onDataCache(DbMethodEntry methodEntry, ModelCacheConditions conditions, Object data) {
+            public void onDataCache(DbMethodEntry methodEntry, ModelCacheConditions conditions, Object data, Class<T> targetClass) {
                 QueryStrategy strategy = new QueryStrategy();
-                strategy.savePlus(methodEntry, conditions.getQueryWrapper(), data, conditions.isMergeQuery());
+                strategy.savePlus(methodEntry, conditions.getQueryWrapper(), data, conditions.isMergeQuery(), targetClass);
             }
         }, skipCache);
     }
@@ -164,9 +163,9 @@ public class StorageManager {
             }
 
             @Override
-            public void onDataCache(DbMethodEntry methodEntry, ModelCacheConditions conditions, Object data) {
+            public void onDataCache(DbMethodEntry methodEntry, ModelCacheConditions conditions, Object data, Class<String> targetClass) {
                 QueryStrategy strategy = new QueryStrategy();
-                strategy.savePlus(methodEntry, conditions.getQueryWrapper(), data, conditions.isMergeQuery());
+                strategy.savePlus(methodEntry, conditions.getQueryWrapper(), data, conditions.isMergeQuery(), targetClass);
             }
         }, skipCache);
     }
@@ -263,27 +262,13 @@ public class StorageManager {
         return queryModelById(dao, methodEntry, entityClass, idValue, true);
     }
 
-    public <Dao extends PrototypeMapper<?>> void deletePlus(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public <Dao extends PrototypeMapper<?>, T> void deletePlus(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper, Class<T> itemClass) {
         if (dao == null || methodEntry == null || queryWrapper == null) {
             return;
         }
-        deleteService.deletePlus(dao, methodEntry, queryWrapper, (methodEntry1, queryWrapper1) -> {
+        deleteService.deletePlus(dao, methodEntry, queryWrapper, itemClass, (methodEntry1, queryWrapper1, targetClass) -> {
             DeleteStrategy strategy = new DeleteStrategy();
-            strategy.deletePlus(methodEntry1, queryWrapper1);
-        });
-    }
-
-    //清除缓存
-    public void removeCache(DbMethodEntry methodEntry, String where) {
-        if (methodEntry == null || TextUtils.isEmpty(where)) {
-            return;
-        }
-        queryService.removeCache(methodEntry, where, new OnCacheStrategy<String, Void, Void>() {
-            @Override
-            public void onRemoveCache(DbMethodEntry methodEntry, String where) {
-                DeleteStrategy strategy = new DeleteStrategy();
-                strategy.delete(methodEntry, where);
-            }
+            strategy.deletePlus(methodEntry1, queryWrapper1, targetClass);
         });
     }
 

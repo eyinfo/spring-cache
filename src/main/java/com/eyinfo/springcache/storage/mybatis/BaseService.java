@@ -1,18 +1,69 @@
 package com.eyinfo.springcache.storage.mybatis;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.eyinfo.foundation.entity.BaseEntity;
 import com.eyinfo.foundation.entity.PageListResponse;
+import com.eyinfo.springcache.entity.CachingStrategyConfig;
+import com.eyinfo.springcache.mongo.MongoManager;
 import com.eyinfo.springcache.response.EyResult;
 import com.eyinfo.springcache.storage.DbMethodEntry;
+import com.eyinfo.springcache.storage.KeysStorage;
 import com.eyinfo.springcache.storage.StorageManager;
+import com.eyinfo.springcache.storage.StorageUtils;
 import com.eyinfo.springcache.storage.entity.PageConditions;
 import com.eyinfo.springcache.storage.entity.PageRequest;
 import com.github.pagehelper.PageInfo;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class BaseService<T extends BaseEntity, M extends ItemMapper<T>> {
+
+    private T findDataFromDb(M mapper, QueryWrapper<T> queryWrapper) {
+        String sqlSegment = queryWrapper.getSqlSegment();
+        if (!sqlSegment.contains("limit")) {
+            queryWrapper.last("limit 1");
+        }
+        return mapper.getDataPlus(queryWrapper);
+    }
+
+    private String getCacheKey(QueryWrapper queryWrapper, String cachePrefix) {
+        StringBuilder builder = new StringBuilder(cachePrefix);
+        builder.append(KeysStorage.combQueryWrapper(queryWrapper));
+        return builder.toString();
+    }
+
+    /**
+     * 查询单条数据
+     *
+     * @param mapper         mapper
+     * @param queryWrapper   查询条件
+     * @param cacheTimestamp 缓存时间戳
+     * @param itemClass      单条数据class类型
+     * @return 数据对象
+     */
+    public T findOne(M mapper, QueryWrapper<T> queryWrapper, Long cacheTimestamp, Class<T> itemClass) {
+        TableName declaredAnnotation = itemClass.getDeclaredAnnotation(TableName.class);
+        String tableName = declaredAnnotation.value();
+        String key = getCacheKey(queryWrapper, tableName);
+        T data = MongoManager.getInstance().get(key, itemClass, false);
+        if (data == null || data.getId() == null || data.getId() <= 0) {
+            T dataFromDb = findDataFromDb(mapper, queryWrapper);
+            if (dataFromDb == null || dataFromDb.getId() == null || dataFromDb.getId() <= 0) {
+                //缓存
+                if (cacheTimestamp == null || cacheTimestamp <= 0) {
+                    CachingStrategyConfig strategyConfig = StorageUtils.getCachingStrategyConfig();
+                    MongoManager.getInstance().save(key, dataFromDb, strategyConfig.getApiGlobalCacheTime());
+                } else {
+                    MongoManager.getInstance().save(key, dataFromDb, cacheTimestamp);
+                }
+            }
+            return dataFromDb;
+        }
+        return data;
+    }
 
     /**
      * 查询单条数据
@@ -22,26 +73,42 @@ public class BaseService<T extends BaseEntity, M extends ItemMapper<T>> {
      * @return 数据对象
      */
     public T findOne(M mapper, QueryWrapper<T> queryWrapper) {
-        String sqlSegment = queryWrapper.getSqlSegment();
-        if (!sqlSegment.contains("limit")) {
-            queryWrapper.last("limit 1");
-        }
-        return mapper.getDataPlus(queryWrapper);
+        return findDataFromDb(mapper, queryWrapper);
     }
 
     /**
-     * 插入或更新数据
+     * 插入或更新数据,同时删除相应的缓存数据
      *
      * @param mapper mapper
      * @param entity 数据实体
      * @return 数据id
      */
-    public int insertOrUpdate(M mapper, T entity) {
+    public Long insertOrUpdate(M mapper, T entity) {
         if (entity.getId() == null || entity.getId() == 0) {
-            return mapper.insertSelective(entity);
+            //自增id会自动填充到entity中
+            mapper.insertSelective(entity);
         } else {
-            return mapper.updateByPrimaryKeySelective(entity);
+            mapper.updateByPrimaryKeySelective(entity);
         }
+        Class<? extends BaseEntity> entityClass = entity.getClass();
+        TableName declaredAnnotation = entityClass.getDeclaredAnnotation(TableName.class);
+        String tableName = declaredAnnotation.value();
+        MongoManager.getInstance().blurDelete(Collections.singletonList(tableName));
+        return entity.getId();
+    }
+
+    /**
+     * 删除数据,同时删除相应的缓存数据
+     *
+     * @param mapper    mapper
+     * @param primaryId 主键id
+     * @param itemClass 数据class类型
+     */
+    public void delete(M mapper, Long primaryId, Class<T> itemClass) {
+        mapper.deleteByPrimaryKey(primaryId);
+        TableName declaredAnnotation = itemClass.getDeclaredAnnotation(TableName.class);
+        String tableName = declaredAnnotation.value();
+        MongoManager.getInstance().blurDelete(Collections.singletonList(tableName));
     }
 
     /**

@@ -33,17 +33,15 @@ public class MongoManager extends BaseMongo {
         return String.format("tbl_cache_record_%s", environment.name());
     }
 
-    //数据最长缓存时间(毫秒)
-    private final int maxCacheTime = 120000;
-
     /**
      * 根据dev、test、pre、prod相应环境缓存数据至mongodb
      *
-     * @param key  缓存key
-     * @param data 待缓存数据
-     * @param <T>  缓存数据类型，支持：String、Integer、Double、Float以及可被序列化的对象
+     * @param key       缓存key
+     * @param data      待缓存数据
+     * @param <T>       缓存数据类型，支持：String、Integer、Double、Float以及可被序列化的对象
+     * @param cacheTime 缓存时间，单位：毫秒
      */
-    public <T> void save(String key, T data) {
+    public <T> void save(String key, T data, Long cacheTime) {
         if (data instanceof Byte) {
             return;
         }
@@ -59,7 +57,7 @@ public class MongoManager extends BaseMongo {
         } else {
             return;
         }
-        this.set(key, content, maxCacheTime);
+        this.set(key, content, cacheTime == null ? 5000 : cacheTime);
     }
 
     /**

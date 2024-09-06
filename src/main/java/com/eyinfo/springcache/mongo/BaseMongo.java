@@ -4,6 +4,7 @@ import com.eyinfo.foundation.encrypts.MD5Encrypt;
 import com.eyinfo.foundation.enums.Environment;
 import com.eyinfo.foundation.utils.ObjectJudge;
 import com.eyinfo.foundation.utils.TextUtils;
+import com.eyinfo.springcache.entity.CachingStrategyConfig;
 import com.eyinfo.springcache.entity.MongoCacheEntity;
 import com.eyinfo.springcache.storage.StorageConfiguration;
 import com.eyinfo.springcache.storage.StorageUtils;
@@ -35,7 +36,7 @@ abstract class BaseMongo {
      * @param period      缓存时间段（毫秒）,与当前时间和缓存时时间差相比超过该缓存时间获取数据后自动删除，
      *                    小于等于0时永久性缓存。
      */
-    void set(Environment environment, String key, String content, long period) {
+    void set(Environment environment, String key, String content, Long period) {
         MongoTemplate mongoTemplate = getMongoTemplate();
         if (mongoTemplate == null || TextUtils.isEmpty(content)) {
             return;
@@ -45,9 +46,23 @@ abstract class BaseMongo {
         cacheItem.setKey(key);
         cacheItem.setContent(content);
         cacheItem.setCacheTime(System.currentTimeMillis());
-        cacheItem.setPeriod(period);
-        cacheItem.setPersistence(period <= 0);
-        mongoTemplate.save(cacheItem, getCollectionName(environment));
+        if (period == null) {
+            CachingStrategyConfig strategyConfig = StorageUtils.getCachingStrategyConfig();
+            Long mongoGlobalCacheTime = strategyConfig.getMongoGlobalCacheTime();
+            if (mongoGlobalCacheTime == null) {
+                cacheItem.setPeriod(0);
+                cacheItem.setPersistence(true);
+                mongoTemplate.save(cacheItem, getCollectionName(environment));
+            } else {
+                cacheItem.setPeriod(mongoGlobalCacheTime);
+                cacheItem.setPersistence(mongoGlobalCacheTime <= 0);
+                mongoTemplate.save(cacheItem, getCollectionName(environment));
+            }
+        } else {
+            cacheItem.setPeriod(period);
+            cacheItem.setPersistence(period <= 0);
+            mongoTemplate.save(cacheItem, getCollectionName(environment));
+        }
     }
 
     /**
@@ -58,7 +73,7 @@ abstract class BaseMongo {
      * @param content     缓存数据
      */
     void set(Environment environment, String key, String content) {
-        set(environment, key, content, 0);
+        set(environment, key, content, null);
     }
 
     /**
@@ -192,9 +207,8 @@ abstract class BaseMongo {
      * @param key     缓存key
      * @param content 缓存数据
      * @param period  缓存时间段（毫秒）,与当前时间和缓存时时间差相比超过该缓存时间获取数据后自动删除，
-     *                小于等于0时永久性缓存。
      */
-    public void set(String key, String content, long period) {
+    public void set(String key, String content, Long period) {
         Environment environment = StorageUtils.getEnvironment();
         this.set(environment, key, content, period);
     }

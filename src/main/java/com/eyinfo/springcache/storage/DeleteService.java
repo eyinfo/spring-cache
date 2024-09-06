@@ -10,30 +10,17 @@ import com.eyinfo.springcache.storage.mybatis.PrototypeMapper;
 
 class DeleteService extends BaseService {
 
-    public <Dao> void delete(Dao dao, DbMethodEntry methodEntry, String where, OnDeleteStrategy<String> deleteStrategy) {
-        if (TextUtils.isEmpty(methodEntry.getMethodName())) {
-            methodEntry.setMethodName("delete");
-        }
-        if (!deleteFromDB(dao, methodEntry, where)) {
-            return;
-        }
-        if (deleteStrategy == null) {
-            return;
-        }
-        deleteStrategy.onDeleteCache(methodEntry, where);
-    }
-
     private <Dao> boolean deleteFromDB(Dao dao, DbMethodEntry methodEntry, String where) {
         InvokeResult invokeResult = super.invokeWithString(dao, methodEntry, where);
         return invokeResult.isSuccess();
     }
 
-    public <Dao extends PrototypeMapper<?>> void deletePlus(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper, OnDeleteStrategy<QueryWrapper> deleteStrategy) {
+    public <Dao extends PrototypeMapper<?>, T> void deletePlus(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper, Class<T> itemClass, OnDeleteStrategy<QueryWrapper, T> deleteStrategy) {
         if (!deletePlusFromDB(dao, methodEntry, queryWrapper)) {
             return;
         }
         if (deleteStrategy != null) {
-            deleteStrategy.onDeleteCache(methodEntry, queryWrapper);
+            deleteStrategy.onDeleteCache(methodEntry, queryWrapper, itemClass);
         }
     }
 

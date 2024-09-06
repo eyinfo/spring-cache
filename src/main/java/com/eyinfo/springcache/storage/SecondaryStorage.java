@@ -36,7 +36,7 @@ public class SecondaryStorage {
      *
      * @param key    存储key
      * @param value  存储数据
-     * @param period 缓存时间（毫秒）,0-永久存储
+     * @param period 缓存时间（毫秒）
      * @param <T>    value数据类型
      */
     public <T> void set(String key, T value, long period) {

@@ -10,7 +10,7 @@ import com.eyinfo.springcache.storage.DbMethodEntry;
  * @Modifier:
  * @ModifyContent:
  */
-public interface OnDeleteStrategy<C> {
+public interface OnDeleteStrategy<C, T> {
 
     /**
      * 根据subkey取出缓存数据
@@ -20,5 +20,5 @@ public interface OnDeleteStrategy<C> {
      * @param redisDbIndex redis缓存数据库索引
      * @return 返回缓存数据
      */
-    public void onDeleteCache(DbMethodEntry methodEntry, C conditions);
+    public void onDeleteCache(DbMethodEntry methodEntry, C conditions, Class<T> targetClass);
 }

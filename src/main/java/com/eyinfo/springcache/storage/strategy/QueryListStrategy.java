@@ -1,11 +1,13 @@
 package com.eyinfo.springcache.storage.strategy;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.eyinfo.foundation.utils.ObjectJudge;
 import com.eyinfo.foundation.utils.TextUtils;
+import com.eyinfo.springcache.entity.CachingStrategyConfig;
 import com.eyinfo.springcache.mongo.MongoManager;
 import com.eyinfo.springcache.storage.DbMethodEntry;
-import com.eyinfo.springcache.storage.SecondaryStorage;
+import com.eyinfo.springcache.storage.StorageUtils;
 import com.eyinfo.springcache.storage.entity.SearchCondition;
 import com.github.pagehelper.PageInfo;
 
@@ -30,16 +32,54 @@ public class QueryListStrategy extends BaseQueryStrategy {
         if (ObjectJudge.isNullOrEmpty(list)) {
             return;
         }
-        MongoManager.getInstance().save(key, pageInfo);
+        Long cacheTimestamp = methodEntry.getCacheTimestamp();
+        if (cacheTimestamp == null) {
+            CachingStrategyConfig strategyConfig = StorageUtils.getCachingStrategyConfig();
+            MongoManager.getInstance().save(key, pageInfo, strategyConfig.getApiGlobalCacheTime());
+        } else {
+            MongoManager.getInstance().save(key, pageInfo, cacheTimestamp);
+        }
     }
 
-    public void save(DbMethodEntry methodEntry, SearchCondition conditions, Object data) {
-        String key = getQueryKey(methodEntry.getCacheSubKey(), conditions);
+    public <Item> void save(DbMethodEntry methodEntry, SearchCondition conditions, Object data, Class<Item> itemClass) {
+        String key = getCacheKey(methodEntry, conditions, itemClass);
         saveData(methodEntry, key, data);
     }
 
-    public <T> void savePlus(DbMethodEntry methodEntry, QueryWrapper<T> queryWrapper, Object data) {
-        String key = getQueryKeyPlus(methodEntry.getCacheSubKey(), queryWrapper);
+    private <Item> String getCacheKey(DbMethodEntry methodEntry, SearchCondition conditions, Class<Item> itemClass) {
+        String prefix;
+        if (itemClass == null) {
+            prefix = methodEntry.getCacheSubKey();
+        } else {
+            TableName declaredAnnotation = itemClass.getDeclaredAnnotation(TableName.class);
+            if (declaredAnnotation == null) {
+                prefix = methodEntry.getCacheSubKey();
+            } else {
+                String value = declaredAnnotation.value();
+                prefix = TextUtils.isEmpty(value) ? methodEntry.getCacheSubKey() : value;
+            }
+        }
+        return getQueryKey(prefix, conditions);
+    }
+
+    private <Item> String getCacheKey(DbMethodEntry methodEntry, QueryWrapper queryWrapper, Class<Item> itemClass) {
+        String prefix;
+        if (itemClass == null) {
+            prefix = methodEntry.getCacheSubKey();
+        } else {
+            TableName declaredAnnotation = itemClass.getDeclaredAnnotation(TableName.class);
+            if (declaredAnnotation == null) {
+                prefix = methodEntry.getCacheSubKey();
+            } else {
+                String value = declaredAnnotation.value();
+                prefix = TextUtils.isEmpty(value) ? methodEntry.getCacheSubKey() : value;
+            }
+        }
+        return getQueryKeyPlus(prefix, queryWrapper);
+    }
+
+    public <Item> void savePlus(DbMethodEntry methodEntry, QueryWrapper queryWrapper, Object data, Class<Item> itemClass) {
+        String key = getCacheKey(methodEntry, queryWrapper, itemClass);
         saveData(methodEntry, key, data);
     }
 
@@ -56,12 +96,12 @@ public class QueryListStrategy extends BaseQueryStrategy {
     }
 
     public <R, Item> R query(DbMethodEntry methodEntry, SearchCondition conditions, Class<Item> itemClass, boolean isList) {
-        String key = getQueryKey(methodEntry.getCacheSubKey(), conditions);
+        String key = getCacheKey(methodEntry, conditions, itemClass);
         return queryData(methodEntry, key, itemClass, isList);
     }
 
     public <R, Item> R queryPlus(DbMethodEntry methodEntry, QueryWrapper queryWrapper, Class<Item> itemClass, boolean isList) {
-        String key = getQueryKeyPlus(methodEntry.getCacheSubKey(), queryWrapper);
+        String key = getCacheKey(methodEntry, queryWrapper, itemClass);
         return queryData(methodEntry, key, itemClass, isList);
     }
 

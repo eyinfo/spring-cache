@@ -11,6 +11,7 @@ public interface RawItemMapper<T> extends PrototypeMapper<T> {
 
     /**
      * 选择性插入数据
+     * 自增数据插入之后id会自动填充到entity中
      *
      * @param entity 数据实体
      * @return 大于0表示操作成功

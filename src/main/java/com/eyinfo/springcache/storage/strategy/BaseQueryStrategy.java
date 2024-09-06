@@ -2,11 +2,12 @@ package com.eyinfo.springcache.storage.strategy;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.eyinfo.foundation.encrypts.MD5Encrypt;
-import com.eyinfo.foundation.utils.ObjectJudge;
 import com.eyinfo.foundation.utils.TextUtils;
+import com.eyinfo.springcache.entity.CachingStrategyConfig;
+import com.eyinfo.springcache.mongo.MongoManager;
+import com.eyinfo.springcache.storage.KeysStorage;
+import com.eyinfo.springcache.storage.StorageUtils;
 import com.eyinfo.springcache.storage.entity.SearchCondition;
-
-import java.util.Map;
 
 /**
  * @Author lijinghuan
@@ -27,7 +28,7 @@ public class BaseQueryStrategy {
         if (queryWrapper == null) {
             builder.append(conditions.getConditionSql());
         } else {
-            builder.append(combQueryWrapper(queryWrapper));
+            builder.append(KeysStorage.combQueryWrapper(queryWrapper));
         }
         return getQueryKey(cacheSubKey, builder.toString());
     }
@@ -44,27 +45,24 @@ public class BaseQueryStrategy {
         return String.format("%s_%s", cacheSubKey, key);
     }
 
-    private String combQueryWrapper(QueryWrapper queryWrapper) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(queryWrapper.getSqlSegment());
-        builder.append(queryWrapper.getCustomSqlSegment());
-        Map<String, Object> paramNameValuePairs = queryWrapper.getParamNameValuePairs();
-        if (!ObjectJudge.isNullOrEmpty(paramNameValuePairs)) {
-            for (Map.Entry<String, Object> entry : paramNameValuePairs.entrySet()) {
-                builder.append(entry.getKey()).append(entry.getValue());
-            }
-        }
-        return builder.toString();
-    }
-
     public <T> String getQueryKeyPlus(String cacheSubKey, QueryWrapper<T> queryWrapper) {
         if (TextUtils.isEmpty(cacheSubKey)) {
             return "";
         }
         StringBuilder builder = new StringBuilder();
         builder.append(cacheSubKey).append("&");
-        builder.append(combQueryWrapper(queryWrapper));
+        builder.append(KeysStorage.combQueryWrapper(queryWrapper));
         String key = MD5Encrypt.md5(builder.toString());
         return String.format("%s_%s", cacheSubKey, key);
+    }
+
+    protected void cacheData(String cacheKey, Object data) {
+        CachingStrategyConfig strategyConfig = StorageUtils.getCachingStrategyConfig();
+        Long apiGlobalCacheTime = strategyConfig.getApiGlobalCacheTime();
+        if (apiGlobalCacheTime != null && apiGlobalCacheTime > 0) {
+            MongoManager.getInstance().save(cacheKey, data, apiGlobalCacheTime);
+        } else {
+            MongoManager.getInstance().save(cacheKey, data, null);
+        }
     }
 }

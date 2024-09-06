@@ -1,10 +1,12 @@
 package com.eyinfo.springcache.storage.strategy;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.eyinfo.foundation.utils.TextUtils;
 import com.eyinfo.springcache.mongo.MongoManager;
 import com.eyinfo.springcache.storage.DbMethodEntry;
 import com.eyinfo.springcache.storage.KeysStorage;
+import com.eyinfo.springcache.storage.entity.SearchCondition;
 
 /**
  * @Author lijinghuan
@@ -35,19 +37,15 @@ public class QueryStrategy extends BaseQueryStrategy {
             return;
         }
         String objectUnique = isMergeSave ? KeysStorage.geObjectUnique(key, methodEntry, false) : key;
-        MongoManager.getInstance().save(objectUnique, data);
+        super.cacheData(objectUnique, data);
     }
 
-    public <T> void savePlus(DbMethodEntry methodEntry, QueryWrapper<T> queryWrapper, Object data, boolean isMergeSave) {
+    public <T> void savePlus(DbMethodEntry methodEntry, QueryWrapper<T> queryWrapper, Object data, boolean isMergeSave,Class<T> targetClass) {
         if (data == null) {
             return;
         }
-        String key = getQueryKeyPlus(methodEntry.getCacheSubKey(), queryWrapper);
-        if (TextUtils.isEmpty(key)) {
-            return;
-        }
-        String objectUnique = isMergeSave ? KeysStorage.geObjectUnique(key, methodEntry, false) : key;
-        MongoManager.getInstance().save(objectUnique, data);
+        String key = getCacheKey(methodEntry, queryWrapper,targetClass);
+        super.cacheData(key, data);
     }
 
     /**
@@ -74,17 +72,41 @@ public class QueryStrategy extends BaseQueryStrategy {
         }
     }
 
-    public <R, Item> R queryPlus(DbMethodEntry methodEntry, QueryWrapper queryWrapper, boolean isMergeQuery, Class<Item> itemClass, boolean isList) {
-        String key = getQueryKeyPlus(methodEntry.getCacheSubKey(), queryWrapper);
-        if (TextUtils.isEmpty(key)) {
-            return null;
-        }
-        if (isMergeQuery) {
-            String objectUnique = KeysStorage.geObjectUnique(key, methodEntry, true);
-            return MongoManager.getInstance().get(objectUnique, itemClass, isList);
+    private <Item> String getCacheKey(DbMethodEntry methodEntry, SearchCondition conditions, Class<Item> itemClass) {
+        String prefix;
+        if (itemClass == null) {
+            prefix = methodEntry.getCacheSubKey();
         } else {
-            return MongoManager.getInstance().get(key, itemClass, isList);
+            TableName declaredAnnotation = itemClass.getDeclaredAnnotation(TableName.class);
+            if (declaredAnnotation == null) {
+                prefix = methodEntry.getCacheSubKey();
+            } else {
+                String value = declaredAnnotation.value();
+                prefix = TextUtils.isEmpty(value) ? methodEntry.getCacheSubKey() : value;
+            }
         }
+        return getQueryKey(prefix, conditions);
+    }
+
+    private <Item> String getCacheKey(DbMethodEntry methodEntry, QueryWrapper queryWrapper, Class<Item> itemClass) {
+        String prefix;
+        if (itemClass == null) {
+            prefix = methodEntry.getCacheSubKey();
+        } else {
+            TableName declaredAnnotation = itemClass.getDeclaredAnnotation(TableName.class);
+            if (declaredAnnotation == null) {
+                prefix = methodEntry.getCacheSubKey();
+            } else {
+                String value = declaredAnnotation.value();
+                prefix = TextUtils.isEmpty(value) ? methodEntry.getCacheSubKey() : value;
+            }
+        }
+        return getQueryKeyPlus(prefix, queryWrapper);
+    }
+
+    public <R, Item> R queryPlus(DbMethodEntry methodEntry, QueryWrapper queryWrapper, boolean isMergeQuery, Class<Item> itemClass, boolean isList) {
+        String key = getCacheKey(methodEntry, queryWrapper,itemClass);
+        return MongoManager.getInstance().get(key, itemClass, isList);
     }
 
     /**

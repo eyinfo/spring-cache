@@ -15,17 +15,16 @@ public class DbMethodEntry extends MethodEntry {
     //数据类型
     private final DataType dataType;
 
-    public DbMethodEntry(String methodName, String cacheSubKey, DataType dataType, Class<?>... parameterTypes) {
+    private final Long cacheTimestamp;
+
+    public DbMethodEntry(String methodName, String cacheSubKey, Long cacheTimestamp, DataType dataType, Class<?>... parameterTypes) {
         super(methodName, "9c74ae9a1b498765", cacheSubKey, parameterTypes);
         this.dataType = dataType;
+        this.cacheTimestamp = cacheTimestamp;
     }
 
-    public DbMethodEntry cloneEntry(String methodName, DataType dataType) {
-        return new DbMethodEntry(methodName, this.getCacheSubKey(), dataType, this.getParameterTypes());
-    }
-
-    public DbMethodEntry cloneEntry(DataType dataType) {
-        return cloneEntry(this.getMethodName(), dataType);
+    public DbMethodEntry(String methodName, String cacheSubKey, DataType dataType, Class<?>... parameterTypes) {
+        this(methodName, cacheSubKey, null, dataType, parameterTypes);
     }
 
     public String getDataType() {
@@ -33,5 +32,12 @@ public class DbMethodEntry extends MethodEntry {
             return "";
         }
         return this.dataType.name();
+    }
+
+    public Long getCacheTimestamp() {
+        if (this.cacheTimestamp == null || this.cacheTimestamp <= 0) {
+            return null;
+        }
+        return cacheTimestamp;
     }
 }

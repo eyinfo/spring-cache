@@ -1,11 +1,14 @@
 package com.eyinfo.springcache.storage;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.eyinfo.foundation.utils.GlobalUtils;
+import com.eyinfo.foundation.utils.ObjectJudge;
 import com.eyinfo.foundation.utils.TextUtils;
 import com.eyinfo.springcache.redis.RedisManager;
 import com.eyinfo.springcache.storage.entity.ObjectEntry;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -48,5 +51,18 @@ public class KeysStorage {
             RedisManager.getInstance().set(methodEntry.getCacheSubKey(), entry, 2, TimeUnit.DAYS);
         }
         return objectKey;
+    }
+
+    public static String combQueryWrapper(QueryWrapper queryWrapper) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(queryWrapper.getSqlSegment());
+        builder.append(queryWrapper.getCustomSqlSegment());
+        Map<String, Object> paramNameValuePairs = queryWrapper.getParamNameValuePairs();
+        if (!ObjectJudge.isNullOrEmpty(paramNameValuePairs)) {
+            for (Map.Entry<String, Object> entry : paramNameValuePairs.entrySet()) {
+                builder.append(entry.getKey()).append(entry.getValue());
+            }
+        }
+        return builder.toString();
     }
 }

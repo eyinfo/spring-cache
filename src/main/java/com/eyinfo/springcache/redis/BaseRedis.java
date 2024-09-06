@@ -1,6 +1,7 @@
 package com.eyinfo.springcache.redis;
 
 import com.eyinfo.foundation.enums.Environment;
+import com.eyinfo.springcache.entity.CachingStrategyConfig;
 import com.eyinfo.springcache.storage.StorageConfiguration;
 import com.eyinfo.springcache.storage.StorageUtils;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -40,7 +41,13 @@ abstract class BaseRedis {
         }
         String cacheKey = String.format("%s_%s", environment.name(), key);
         if (unit == null) {
-            redisTemplate.opsForValue().set(cacheKey, content);
+            CachingStrategyConfig strategyConfig = StorageUtils.getCachingStrategyConfig();
+            Long redisGlobalCacheTime = strategyConfig.getRedisGlobalCacheTime();
+            if (redisGlobalCacheTime == null) {
+                redisTemplate.opsForValue().set(cacheKey, content);
+            } else {
+                redisTemplate.opsForValue().set(cacheKey, content, redisGlobalCacheTime, TimeUnit.MILLISECONDS);
+            }
         } else {
             redisTemplate.opsForValue().set(cacheKey, content, period, unit);
         }

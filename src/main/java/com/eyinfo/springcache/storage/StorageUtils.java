@@ -1,6 +1,7 @@
 package com.eyinfo.springcache.storage;
 
 import com.eyinfo.foundation.enums.Environment;
+import com.eyinfo.springcache.entity.CachingStrategyConfig;
 
 public class StorageUtils {
 
@@ -22,5 +23,10 @@ public class StorageUtils {
         String active = configuration.getActive();
         Environment environment = Environment.getEnvironment(active);
         return environment == null ? Environment.dev : environment;
+    }
+
+    public static CachingStrategyConfig getCachingStrategyConfig() {
+        CachingStrategyConfig strategyConfig = configuration.getCachingStrategyConfig();
+        return strategyConfig == null ? new CachingStrategyConfig() : strategyConfig;
     }
 }

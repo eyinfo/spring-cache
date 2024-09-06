@@ -62,10 +62,10 @@ class QueryService extends BaseService {
                 }
             }
         }
-        return queryDbPageInfo(dao, methodEntry, searchCondition, cacheStrategy, conditions.isMap());
+        return queryDbPageInfo(dao, methodEntry, searchCondition, cacheStrategy, itemClass, conditions.isMap());
     }
 
-    private <Item, Dao extends PrototypeMapper<Item>> PageInfo<Item> queryDbPageInfo(Dao dao, DbMethodEntry methodEntry, SearchCondition searchCondition, OnCacheStrategy<SearchCondition, PageInfo<Item>, Item> cacheStrategy, boolean isMap) {
+    private <Item, Dao extends PrototypeMapper<Item>> PageInfo<Item> queryDbPageInfo(Dao dao, DbMethodEntry methodEntry, SearchCondition searchCondition, OnCacheStrategy<SearchCondition, PageInfo<Item>, Item> cacheStrategy, Class<Item> itemClass, boolean isMap) {
         PageHelper.startPage(searchCondition.getPageNumber(), searchCondition.getPageSize(), true, true, false);
         List<Item> result;
         QueryWrapper queryWrapper = searchCondition.getQueryWrapper();
@@ -84,7 +84,7 @@ class QueryService extends BaseService {
         }
         PageInfo<Item> pageInfo = PageInfo.of(result);
         if (cacheStrategy != null) {
-            cacheStrategy.onDataCache(methodEntry, searchCondition, pageInfo);
+            cacheStrategy.onDataCache(methodEntry, searchCondition, pageInfo, itemClass);
         }
         return pageInfo;
     }
@@ -99,7 +99,7 @@ class QueryService extends BaseService {
                 return list;
             }
             List<Item> result = selectListFromDB(dao, methodEntry, conditionSql);
-            cacheStrategy.onDataCache(methodEntry, conditionSql, result);
+            cacheStrategy.onDataCache(methodEntry, conditionSql, result, itemClass);
             return result;
         }
     }
@@ -113,7 +113,7 @@ class QueryService extends BaseService {
                 return list;
             }
             List<Item> result = selectListPlusFromDB(dao, methodEntry, queryWrapper);
-            cacheStrategy.onDataCache(methodEntry, queryWrapper, result);
+            cacheStrategy.onDataCache(methodEntry, queryWrapper, result, itemClass);
             return result;
         }
     }
@@ -163,7 +163,7 @@ class QueryService extends BaseService {
             select = selectFromDB(dao, methodEntry, queryWrapper);
         }
         if (cacheStrategy != null && !skipCache) {
-            cacheStrategy.onDataCache(methodEntry, conditions, select);
+            cacheStrategy.onDataCache(methodEntry, conditions, select, entityClass);
         }
         return select;
     }
@@ -180,7 +180,7 @@ class QueryService extends BaseService {
             select = selectStringFromDB(dao, methodEntry, queryWrapper);
         }
         if (cacheStrategy != null) {
-            cacheStrategy.onDataCache(methodEntry, conditions, select);
+            cacheStrategy.onDataCache(methodEntry, conditions, select, null);
         }
         return select;
     }
@@ -279,7 +279,7 @@ class QueryService extends BaseService {
 
     public void removeCache(DbMethodEntry methodEntry, String where, OnCacheStrategy<String, Void, Void> cacheStrategy) {
         if (cacheStrategy != null) {
-            cacheStrategy.onRemoveCache(methodEntry, where);
+            cacheStrategy.onRemoveCache(methodEntry, where, null);
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.eyinfo.springcache.storage;
 
+import com.eyinfo.springcache.entity.CachingStrategyConfig;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -23,6 +24,9 @@ public class StorageConfiguration implements ApplicationContextAware {
     @Resource
     private RedisTemplate redisTemplate;
 
+    @Resource
+    private CachingStrategyConfig cachingStrategyConfig;
+
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
@@ -42,5 +46,9 @@ public class StorageConfiguration implements ApplicationContextAware {
 
     public <K, V> RedisTemplate<K, V> getRedisTemplate() {
         return this.redisTemplate;
+    }
+
+    public CachingStrategyConfig getCachingStrategyConfig() {
+        return cachingStrategyConfig;
     }
 }

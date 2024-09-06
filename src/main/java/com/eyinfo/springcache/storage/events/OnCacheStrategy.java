@@ -30,8 +30,9 @@ public class OnCacheStrategy<C, R, Item> {
      * @param methodEntry
      * @param conditions  条件
      * @param data要缓存的数据
+     * @param targetClass 目标数据类型
      */
-    public void onDataCache(DbMethodEntry methodEntry, C conditions, Object data) {
+    public void onDataCache(DbMethodEntry methodEntry, C conditions, Object data, Class<Item> targetClass) {
 
     }
 
@@ -41,6 +42,6 @@ public class OnCacheStrategy<C, R, Item> {
      * @param methodEntry {@link com.geease.service_public_info.entity.MethodEntry}
      * @param conditions  条件
      */
-    public void onRemoveCache(DbMethodEntry methodEntry, C conditions) {
+    public void onRemoveCache(DbMethodEntry methodEntry, C conditions, Class<Item> targetClass) {
     }
 }
