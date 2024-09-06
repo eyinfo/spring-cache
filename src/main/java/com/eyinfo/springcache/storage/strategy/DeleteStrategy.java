@@ -26,7 +26,7 @@ public class DeleteStrategy extends BaseQueryStrategy {
                 prefix = methodEntry.getCacheSubKey();
             } else {
                 String value = declaredAnnotation.value();
-                prefix = TextUtils.isEmpty(value) ? methodEntry.getCacheSubKey() : value;
+                prefix = TextUtils.isEmpty(value) ? methodEntry.getCacheSubKey() : String.format("%s_%s", value, methodEntry.getCacheSubKey());
             }
         }
         return getQueryKeyPlus(prefix, queryWrapper);
