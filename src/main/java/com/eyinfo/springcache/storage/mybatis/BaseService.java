@@ -15,7 +15,6 @@ import com.eyinfo.springcache.storage.entity.PageConditions;
 import com.eyinfo.springcache.storage.entity.PageRequest;
 import com.github.pagehelper.PageInfo;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -52,13 +51,13 @@ public class BaseService<T extends BaseEntity, M extends ItemMapper<T>> {
         if (data == null || data.getId() == null || data.getId() <= 0) {
             T dataFromDb = findDataFromDb(mapper, queryWrapper);
             if (dataFromDb == null || dataFromDb.getId() == null || dataFromDb.getId() <= 0) {
-                //缓存
-                if (cacheTimestamp == null || cacheTimestamp <= 0) {
-                    CachingStrategyConfig strategyConfig = StorageUtils.getCachingStrategyConfig();
-                    MongoManager.getInstance().save(key, dataFromDb, strategyConfig.getApiGlobalCacheTime());
-                } else {
-                    MongoManager.getInstance().save(key, dataFromDb, cacheTimestamp);
-                }
+                return null;
+            }
+            if (cacheTimestamp == null || cacheTimestamp <= 0) {
+                CachingStrategyConfig strategyConfig = StorageUtils.getCachingStrategyConfig();
+                MongoManager.getInstance().save(key, dataFromDb, strategyConfig.getApiGlobalCacheTime());
+            } else {
+                MongoManager.getInstance().save(key, dataFromDb, cacheTimestamp);
             }
             return dataFromDb;
         }
