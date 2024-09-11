@@ -475,7 +475,7 @@ abstract class BaseMongo {
     }
 
     /**
-     * 根据id获取缓存
+     * 根据条件查询数据
      *
      * @param environment    环境
      * @param query          查询条件
@@ -492,7 +492,7 @@ abstract class BaseMongo {
     }
 
     /**
-     * 根据id获取缓存
+     * 根据条件查询数据
      *
      * @param environment    环境
      * @param query          查询条件
@@ -506,7 +506,7 @@ abstract class BaseMongo {
     }
 
     /**
-     * 根据id获取缓存
+     * 根据id获取数据
      *
      * @param environment    环境
      * @param id             数据
@@ -527,7 +527,24 @@ abstract class BaseMongo {
     }
 
     /**
-     * 根据id获取缓存
+     * 根据ids获取数据
+     *
+     * @param environment    环境
+     * @param ids            ids
+     * @param itemClass      单条数据class
+     * @param collectionName 集合名称
+     * @return 返回集合数据
+     */
+    public <Item> List<Item> getQueryByIds(Collection<String> ids, Class<Item> itemClass, String collectionName) {
+        Query query = new Query();
+        Criteria criteria = new Criteria();
+        criteria.and("id").in(ids);
+        query.addCriteria(criteria);
+        return this.getQuery(query, itemClass, collectionName);
+    }
+
+    /**
+     * 根据key获取数据
      *
      * @param environment    环境
      * @param key            记录key
@@ -535,15 +552,25 @@ abstract class BaseMongo {
      * @param collectionName 集合名称
      * @return 返回集合数据
      */
-    public <Item> Item getQueryByKey(String key, Class<Item> itemClass, String collectionName) {
+    public <Item> List<Item> getQueryByKey(String key, Class<Item> itemClass, String collectionName) {
         Query query = new Query();
         Criteria criteria = new Criteria();
         criteria.and("key").is(key);
         query.addCriteria(criteria);
-        List<Item> list = this.getQuery(query, itemClass, collectionName);
-        if (ObjectJudge.isNullOrEmpty(list)) {
-            return null;
-        }
-        return list.get(0);
+        return this.getQuery(query, itemClass, collectionName);
+    }
+
+    /**
+     * 根据key获取数据
+     *
+     * @param environment    环境
+     * @param key            记录key
+     * @param itemClass      单条数据class
+     * @param collectionName 集合名称
+     * @return 返回数据
+     */
+    public <Item> Item getQueryOneByKey(String key, Class<Item> itemClass, String collectionName) {
+        List<Item> list = this.getQueryByKey(key, itemClass, collectionName);
+        return list.size() > 0 ? list.get(0) : null;
     }
 }
