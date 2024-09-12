@@ -33,6 +33,9 @@ abstract class BaseMongo {
         if (TextUtils.isEmpty(customCollectionName)) {
             return getCollectionName(environment);
         }
+        if (environment != null && environment != Environment.none) {
+            return String.format("%s_%s", customCollectionName, environment.name());
+        }
         return customCollectionName;
     }
 
@@ -457,8 +460,7 @@ abstract class BaseMongo {
         if (mongoTemplate == null || data == null || TextUtils.isEmpty(collectionName)) {
             return;
         }
-        String collection = String.format("%s_%s", collectionName, environment.name());
-        mongoTemplate.save(data, getCollectionName(environment, collection));
+        mongoTemplate.save(data, getCollectionName(environment, collectionName));
     }
 
     /**
