@@ -19,14 +19,6 @@ public interface RawItemMapper<T> extends PrototypeMapper<T> {
     int insertSelective(T entity);
 
     /**
-     * 根据主键id查询数据
-     *
-     * @param id 主键id
-     * @return 数据bean
-     */
-    T selectByPrimaryKey(Long id);
-
-    /**
      * 选择性更新数据
      *
      * @param entity 数据实体
