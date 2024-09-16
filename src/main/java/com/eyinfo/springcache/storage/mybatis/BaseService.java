@@ -76,6 +76,19 @@ public class BaseService<T extends BaseEntity, M extends ItemMapper<T>> {
     }
 
     /**
+     * 查询单条数据
+     *
+     * @param mapper mapper
+     * @param id     数据id
+     * @return 数据对象
+     */
+    public T findOne(M mapper, Long id) {
+        QueryWrapper<T> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id", id);
+        return findDataFromDb(mapper, queryWrapper);
+    }
+
+    /**
      * 插入或更新数据,同时删除相应的缓存数据
      *
      * @param mapper mapper
