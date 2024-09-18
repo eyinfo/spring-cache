@@ -52,7 +52,7 @@ public class StorageManager {
      * @param <Dao>       mapper type
      * @return PageInfo分页数据
      */
-    public <Item, Dao extends PrototypeMapper<Item>> PageInfo<Item> queryPage(Dao dao, Class<Item> itemClass, DbMethodEntry methodEntry, PageConditions conditions, boolean skipCache) {
+    public <Item, Dao> PageInfo<Item> queryPage(Dao dao, Class<Item> itemClass, DbMethodEntry methodEntry, PageConditions conditions, boolean skipCache) {
         if (skipCache) {
             return queryService.select(dao, itemClass, methodEntry, conditions, null);
         }

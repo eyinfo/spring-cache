@@ -1,0 +1,35 @@
+{
+  "groups": [
+    {
+      "name": "spring.caching.strategy",
+      "type": "com.eyinfo.springcache.entity.CachingStrategyConfig",
+      "sourceType": "com.eyinfo.springcache.entity.CachingStrategyConfig"
+    },
+    {
+      "name": "spring.profiles",
+      "type": "com.eyinfo.springcache.storage.StorageConfiguration",
+      "sourceType": "com.eyinfo.springcache.storage.StorageConfiguration"
+    }
+  ],
+  "properties": [
+    {
+      "name": "spring.caching.strategy.api-global-cache-time",
+      "type": "java.lang.Long",
+      "sourceType": "com.eyinfo.springcache.entity.CachingStrategyConfig",
+      "defaultValue": 120000
+    },
+    {
+      "name": "spring.caching.strategy.mongo-global-cache-time",
+      "type": "java.lang.Long",
+      "sourceType": "com.eyinfo.springcache.entity.CachingStrategyConfig",
+      "defaultValue": 300000
+    },
+    {
+      "name": "spring.caching.strategy.redis-global-cache-time",
+      "type": "java.lang.Long",
+      "sourceType": "com.eyinfo.springcache.entity.CachingStrategyConfig",
+      "defaultValue": 60000
+    }
+  ],
+  "hints": []
+}

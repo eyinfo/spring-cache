@@ -31,7 +31,7 @@ import java.util.Map;
  */
 class QueryService extends BaseService {
 
-    public <Item, Dao extends PrototypeMapper<Item>> PageInfo<Item> select(Dao dao, Class<Item> itemClass, DbMethodEntry methodEntry, PageConditions conditions, OnCacheStrategy<SearchCondition, PageInfo<Item>, Item> cacheStrategy) {
+    public <Item, Dao> PageInfo<Item> select(Dao dao, Class<Item> itemClass, DbMethodEntry methodEntry, PageConditions conditions, OnCacheStrategy<SearchCondition, PageInfo<Item>, Item> cacheStrategy) {
         SearchCondition searchCondition = new SearchCondition();
         QueryWrapper queryWrapper = conditions.getQueryWrapper();
         searchCondition.setQueryWrapper(queryWrapper);
@@ -65,7 +65,7 @@ class QueryService extends BaseService {
         return queryDbPageInfo(dao, methodEntry, searchCondition, cacheStrategy, itemClass, conditions.isMap());
     }
 
-    private <Item, Dao extends PrototypeMapper<Item>> PageInfo<Item> queryDbPageInfo(Dao dao, DbMethodEntry methodEntry, SearchCondition searchCondition, OnCacheStrategy<SearchCondition, PageInfo<Item>, Item> cacheStrategy, Class<Item> itemClass, boolean isMap) {
+    private <Item, Dao> PageInfo<Item> queryDbPageInfo(Dao dao, DbMethodEntry methodEntry, SearchCondition searchCondition, OnCacheStrategy<SearchCondition, PageInfo<Item>, Item> cacheStrategy, Class<Item> itemClass, boolean isMap) {
         PageHelper.startPage(searchCondition.getPageNumber(), searchCondition.getPageSize(), true, true, false);
         List<Item> result;
         QueryWrapper queryWrapper = searchCondition.getQueryWrapper();
