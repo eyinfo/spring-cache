@@ -22,7 +22,7 @@ import java.util.List;
  * @Modifier:
  * @ModifyContent:
  */
-public class StorageManager {
+public class StorageManager extends WithService{
 
     private static volatile StorageManager storageManager;
     private final QueryService queryService = new QueryService();
