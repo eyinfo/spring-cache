@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.eyinfo.foundation.entity.BaseEntity;
 import com.eyinfo.foundation.entity.PageListResponse;
+import com.eyinfo.foundation.utils.TimeSyncUtils;
 import com.eyinfo.springcache.entity.CachingStrategyConfig;
 import com.eyinfo.springcache.mongo.MongoManager;
 import com.eyinfo.springcache.response.EyResult;
@@ -108,8 +109,10 @@ public class WithService {
      * @return 数据id
      */
     public <T extends BaseEntity, M extends ItemMapper<T>> Long insertOrUpdate(M mapper, T entity) {
+        entity.setModifyTime(TimeSyncUtils.getUTCTimestamp());
         if (entity.getId() == null || entity.getId() == 0) {
             //自增id会自动填充到entity中
+            entity.setCreateTime(TimeSyncUtils.getUTCTimestamp());
             mapper.insertSelective(entity);
         } else {
             mapper.updateByPrimaryKeySelective(entity);
@@ -129,6 +132,10 @@ public class WithService {
      * @return 数据id
      */
     public <T extends BaseEntity, M extends ItemMapper<T>> Long updateByPrimaryKeySelective(M mapper, T entity) {
+        if (entity.getCreateTime() == null) {
+            entity.setCreateTime(TimeSyncUtils.getUTCTimestamp());
+        }
+        entity.setModifyTime(TimeSyncUtils.getUTCTimestamp());
         mapper.updateByPrimaryKeySelective(entity);
         Class<? extends BaseEntity> entityClass = entity.getClass();
         TableName declaredAnnotation = entityClass.getDeclaredAnnotation(TableName.class);
