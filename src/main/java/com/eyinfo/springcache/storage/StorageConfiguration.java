@@ -1,6 +1,7 @@
 package com.eyinfo.springcache.storage;
 
 import com.eyinfo.springcache.entity.CachingStrategyConfig;
+import jakarta.annotation.Resource;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -8,8 +9,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 
 @Component
 @ConfigurationProperties(prefix = "spring.profiles")
