@@ -3,7 +3,7 @@
   "component": {
     "group": "com.eyinfo",
     "module": "spring-cache",
-    "version": "1.0.37",
+    "version": "1.0.38",
     "attributes": {
       "org.gradle.status": "release"
     }
@@ -35,14 +35,14 @@
           "group": "org.springframework.boot",
           "module": "spring-boot-starter-data-mongodb",
           "version": {
-            "requires": "3.0.2"
+            "requires": "3.2.10"
           }
         },
         {
           "group": "org.springframework.boot",
           "module": "spring-boot-starter-data-redis",
           "version": {
-            "requires": "3.0.2"
+            "requires": "3.2.10"
           }
         },
         {
@@ -62,8 +62,8 @@
       ],
       "files": [
         {
-          "name": "spring-cache-1.0.37.jar",
-          "url": "spring-cache-1.0.37.jar",
+          "name": "spring-cache-1.0.38.jar",
+          "url": "spring-cache-1.0.38.jar",
           "size": 94573,
           "sha512": "7040367fba2f5aa65f2a95ed2d03e64f03a1f54b9462cd1027a67f0bbe716b34ddba6ebd5edd998574bbbce523cff155c14f47f12718ad2a944228f487e5c3fd",
           "sha256": "c87638dec7dac3d74a56e03b3c9580a6c2d06512e0e33e1b6e92eb4835691acc",
@@ -93,14 +93,14 @@
           "group": "org.springframework.boot",
           "module": "spring-boot-starter-data-mongodb",
           "version": {
-            "requires": "3.0.2"
+            "requires": "3.2.10"
           }
         },
         {
           "group": "org.springframework.boot",
           "module": "spring-boot-starter-data-redis",
           "version": {
-            "requires": "3.0.2"
+            "requires": "3.2.10"
           }
         },
         {
@@ -120,8 +120,8 @@
       ],
       "files": [
         {
-          "name": "spring-cache-1.0.37.jar",
-          "url": "spring-cache-1.0.37.jar",
+          "name": "spring-cache-1.0.38.jar",
+          "url": "spring-cache-1.0.38.jar",
           "size": 94573,
           "sha512": "7040367fba2f5aa65f2a95ed2d03e64f03a1f54b9462cd1027a67f0bbe716b34ddba6ebd5edd998574bbbce523cff155c14f47f12718ad2a944228f487e5c3fd",
           "sha256": "c87638dec7dac3d74a56e03b3c9580a6c2d06512e0e33e1b6e92eb4835691acc",

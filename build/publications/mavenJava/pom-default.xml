@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.eyinfo</groupId>
   <artifactId>spring-cache</artifactId>
-  <version>1.0.37</version>
+  <version>1.0.38</version>
   <dependencies>
     <dependency>
       <groupId>com.eyinfo</groupId>
@@ -20,13 +20,13 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-mongodb</artifactId>
-      <version>3.0.2</version>
+      <version>3.2.10</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-redis</artifactId>
-      <version>3.0.2</version>
+      <version>3.2.10</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
