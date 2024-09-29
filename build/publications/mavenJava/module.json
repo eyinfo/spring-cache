@@ -3,7 +3,7 @@
   "component": {
     "group": "com.eyinfo",
     "module": "spring-cache",
-    "version": "1.0.39",
+    "version": "1.0.41",
     "attributes": {
       "org.gradle.status": "release"
     }
@@ -49,7 +49,7 @@
           "group": "com.github.pagehelper",
           "module": "pagehelper-spring-boot-starter",
           "version": {
-            "requires": "1.4.0"
+            "requires": "1.4.7"
           }
         },
         {
@@ -62,8 +62,8 @@
       ],
       "files": [
         {
-          "name": "spring-cache-1.0.39.jar",
-          "url": "spring-cache-1.0.39.jar",
+          "name": "spring-cache-1.0.41.jar",
+          "url": "spring-cache-1.0.41.jar",
           "size": 94873,
           "sha512": "e15aad97a3d5f720b98897d0a95b079f8c33defd025be0561c679322f05b761c10286d8c3b4d7662dcae03b9e0a5cb55889c988f76a0ba37f3d4901e13f0e16e",
           "sha256": "7f698d877ba4470c7a3314b6348c4a0bce28aeed4b046ee289724203ab3c79bc",
@@ -107,7 +107,7 @@
           "group": "com.github.pagehelper",
           "module": "pagehelper-spring-boot-starter",
           "version": {
-            "requires": "1.4.0"
+            "requires": "1.4.7"
           }
         },
         {
@@ -120,8 +120,8 @@
       ],
       "files": [
         {
-          "name": "spring-cache-1.0.39.jar",
-          "url": "spring-cache-1.0.39.jar",
+          "name": "spring-cache-1.0.41.jar",
+          "url": "spring-cache-1.0.41.jar",
           "size": 94873,
           "sha512": "e15aad97a3d5f720b98897d0a95b079f8c33defd025be0561c679322f05b761c10286d8c3b4d7662dcae03b9e0a5cb55889c988f76a0ba37f3d4901e13f0e16e",
           "sha256": "7f698d877ba4470c7a3314b6348c4a0bce28aeed4b046ee289724203ab3c79bc",
