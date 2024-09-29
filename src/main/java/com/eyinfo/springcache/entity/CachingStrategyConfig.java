@@ -15,8 +15,11 @@ public class CachingStrategyConfig {
     //mongo全局缓存时间(毫秒)
     private Long mongoGlobalCacheTime = 300000L;
 
-    //仅允许开发、测试合并自定义缓存
+    //仅允许开发、测试合并自定义缓存(true-表名后续不区分环境)
     private boolean mergeCustomCacheOnlyDevTest = false;
+
+    //合并自定义缓存(true-表名后续不区分环境)
+    private boolean mergeCustomCache = false;
 
     public Long getApiGlobalCacheTime() {
         return apiGlobalCacheTime;
@@ -48,5 +51,13 @@ public class CachingStrategyConfig {
 
     public void setMergeCustomCacheOnlyDevTest(boolean mergeCustomCacheOnlyDevTest) {
         this.mergeCustomCacheOnlyDevTest = mergeCustomCacheOnlyDevTest;
+    }
+
+    public boolean isMergeCustomCache() {
+        return mergeCustomCache;
+    }
+
+    public void setMergeCustomCache(boolean mergeCustomCache) {
+        this.mergeCustomCache = mergeCustomCache;
     }
 }

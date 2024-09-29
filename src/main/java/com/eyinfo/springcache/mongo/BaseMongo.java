@@ -39,6 +39,10 @@ abstract class BaseMongo {
             return getCollectionName(environment);
         }
         CachingStrategyConfig strategyConfig = StorageUtils.getCachingStrategyConfig();
+        if (strategyConfig.isMergeCustomCache()) {
+            //合并缓存
+            return customCollectionName;
+        }
         if (strategyConfig.isMergeCustomCacheOnlyDevTest() && isDevOrTest(environment)) {
             //仅dev、test环境合并缓存
             return customCollectionName;
