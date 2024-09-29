@@ -29,11 +29,22 @@ abstract class BaseMongo {
         return configuration.getMongoTemplate();
     }
 
+    private boolean isDevOrTest(Environment environment) {
+        return environment == Environment.dev || environment == Environment.test;
+    }
+
     private String getCollectionName(Environment environment, String customCollectionName) {
         if (TextUtils.isEmpty(customCollectionName)) {
+            //缓存数据根据环境对应缓存
             return getCollectionName(environment);
         }
-        if (environment != null && environment != Environment.none) {
+        CachingStrategyConfig strategyConfig = StorageUtils.getCachingStrategyConfig();
+        if (strategyConfig.isMergeCustomCacheOnlyDevTest() && isDevOrTest(environment)) {
+            //仅dev、test环境合并缓存
+            return customCollectionName;
+        }
+        if (environment == Environment.pre || environment == Environment.prod) {
+            //仅pre、prod环境区分缓存，集合名添加添加环境后缀
             return String.format("%s_%s", customCollectionName, environment.name());
         }
         return customCollectionName;

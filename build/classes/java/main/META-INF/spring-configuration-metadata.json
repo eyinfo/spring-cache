@@ -19,6 +19,12 @@
       "defaultValue": 120000
     },
     {
+      "name": "spring.caching.strategy.merge-custom-cache-only-dev-test",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.eyinfo.springcache.entity.CachingStrategyConfig",
+      "defaultValue": false
+    },
+    {
       "name": "spring.caching.strategy.mongo-global-cache-time",
       "type": "java.lang.Long",
       "sourceType": "com.eyinfo.springcache.entity.CachingStrategyConfig",
