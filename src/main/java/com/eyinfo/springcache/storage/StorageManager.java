@@ -1,7 +1,7 @@
 package com.eyinfo.springcache.storage;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.eyinfo.foundation.utils.TextUtils;
+import com.eyinfo.foundation.utils.ObjectJudge;
 import com.eyinfo.springcache.storage.entity.ModelCacheConditions;
 import com.eyinfo.springcache.storage.entity.PageConditions;
 import com.eyinfo.springcache.storage.entity.SearchCondition;
@@ -22,7 +22,7 @@ import java.util.List;
  * @Modifier:
  * @ModifyContent:
  */
-public class StorageManager extends WithService{
+public class StorageManager extends WithService {
 
     private static volatile StorageManager storageManager;
     private final QueryService queryService = new QueryService();
@@ -222,8 +222,8 @@ public class StorageManager extends WithService{
      * @param <Dao>        mapper type
      * @return
      */
-    public <T, Dao extends PrototypeMapper<T>> T queryModelById(Dao dao, DbMethodEntry methodEntry, Class<T> entityClass, String idValue, boolean skipCache, boolean isMergeQuery) {
-        if (entityClass == null || TextUtils.isEmpty(idValue)) {
+    public <T, Dao extends PrototypeMapper<T>> T queryModelById(Dao dao, DbMethodEntry methodEntry, Class<T> entityClass, Long idValue, boolean skipCache, boolean isMergeQuery) {
+        if (entityClass == null || ObjectJudge.isNullOrZero(idValue)) {
             return null;
         }
         QueryWrapper<T> queryWrapper = new QueryWrapper<>();
@@ -243,7 +243,7 @@ public class StorageManager extends WithService{
      * @param <Dao>        mapper type
      * @return
      */
-    public <T, Dao extends PrototypeMapper<T>> T queryModelById(Dao dao, DbMethodEntry methodEntry, Class<T> entityClass, String idValue, boolean isMergeQuery) {
+    public <T, Dao extends PrototypeMapper<T>> T queryModelById(Dao dao, DbMethodEntry methodEntry, Class<T> entityClass, Long idValue, boolean isMergeQuery) {
         return queryModelById(dao, methodEntry, entityClass, idValue, false, isMergeQuery);
     }
 
@@ -258,7 +258,7 @@ public class StorageManager extends WithService{
      * @param <Dao>       mapper type
      * @return
      */
-    public <T, Dao extends PrototypeMapper<T>> T queryModelById(Dao dao, DbMethodEntry methodEntry, Class<T> entityClass, String idValue) {
+    public <T, Dao extends PrototypeMapper<T>> T queryModelById(Dao dao, DbMethodEntry methodEntry, Class<T> entityClass, Long idValue) {
         return queryModelById(dao, methodEntry, entityClass, idValue, true);
     }
 

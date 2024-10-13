@@ -1,9 +1,12 @@
 package com.eyinfo.springcache.storage;
 
 import com.eyinfo.foundation.utils.TextUtils;
+import com.eyinfo.foundation.utils.TimeSyncUtils;
+import org.springframework.data.redis.core.TimeoutUtils;
 
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Author lijinghuan
@@ -13,6 +16,45 @@ import java.util.HashMap;
  * Modifier:
  * ModifyContent:
  */
+class MemoryCacheEntry {
+    private Object content;
+    private long period;
+    private TimeUnit unit;
+    private long startTime;
+
+    public Object getContent() {
+        return content;
+    }
+
+    public void setContent(Object content) {
+        this.content = content;
+    }
+
+    public long getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(long period) {
+        this.period = period;
+    }
+
+    public TimeUnit getUnit() {
+        return unit;
+    }
+
+    public void setUnit(TimeUnit unit) {
+        this.unit = unit;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+}
+
 public class MemoryCache {
 
     private static volatile MemoryCache memoryCache = null;
@@ -61,6 +103,23 @@ public class MemoryCache {
     }
 
     /**
+     * 保存数据
+     *
+     * @param key     缓存key
+     * @param content 缓存内容
+     * @param period  缓存时间
+     * @param unit    缓存时间单位
+     */
+    public void set(String key, Object content, long period, TimeUnit unit) {
+        MemoryCacheEntry cacheEntry = new MemoryCacheEntry();
+        cacheEntry.setContent(content);
+        cacheEntry.setPeriod(period);
+        cacheEntry.setUnit(unit);
+        cacheEntry.setStartTime(TimeSyncUtils.getUTCTimestamp());
+        this.set(key, cacheEntry);
+    }
+
+    /**
      * 获取软缓存,在内存极度底下时被清理
      *
      * @param key 缓存键
@@ -76,8 +135,23 @@ public class MemoryCache {
         Object o = map.get(key);
         if (o == null) {
             return null;
-        } else {
-            return (T) o;
         }
+        if (o instanceof MemoryCacheEntry) {
+            MemoryCacheEntry entry = (MemoryCacheEntry) o;
+            long millis = TimeoutUtils.toMillis(entry.getPeriod(), entry.getUnit());
+            long startTime = entry.getStartTime();
+            long endTime = startTime + millis;
+            boolean expired = TimeSyncUtils.getUTCTimestamp() > endTime;
+            if (expired) {
+                map.remove(key);
+                return null;
+            }
+            return (T) entry.getContent();
+        }
+        return (T) o;
+    }
+
+    public void remove(String key) {
+        softMap.remove(key);
     }
 }
