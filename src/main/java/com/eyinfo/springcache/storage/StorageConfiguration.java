@@ -1,6 +1,8 @@
 package com.eyinfo.springcache.storage;
 
+import com.eyinfo.foundation.entity.Result;
 import com.eyinfo.springcache.entity.CachingStrategyConfig;
+import com.eyinfo.springcache.entity.MessagePrompt;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -26,10 +28,14 @@ public class StorageConfiguration implements ApplicationContextAware {
     @Resource
     private CachingStrategyConfig cachingStrategyConfig;
 
+    @Resource
+    private MessagePrompt messagePrompt;
+
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
         StorageUtils.configuration = this;
+        Result.setMessageConfig(this.messagePrompt.getPrompt());
     }
 
     public String getActive() {

@@ -2,12 +2,6 @@ package com.eyinfo.springcache.storage;
 
 import com.eyinfo.foundation.utils.JsonUtils;
 import com.eyinfo.springcache.mongo.MongoManager;
-import com.eyinfo.springcache.redis.RedisManager;
-
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class SecondaryStorage {
 
@@ -29,8 +23,6 @@ public class SecondaryStorage {
 
     }
 
-    private final Map<String, Object> tempMap = new LinkedHashMap<>();
-
     /**
      * 设置缓存数据
      *
@@ -46,11 +38,7 @@ public class SecondaryStorage {
         } else {
             content = JsonUtils.toStr(value);
         }
-        if (period == 0 || period > 30000) {
-            MongoManager.getInstance().set(key, content, period);
-        } else {
-            RedisManager.getInstance().set(key, value, period, TimeUnit.MILLISECONDS);
-        }
+        MongoManager.getInstance().set(key, content, period);
     }
 
     /**
@@ -62,29 +50,6 @@ public class SecondaryStorage {
      */
     public <T> void set(String key, T value) {
         this.set(key, value, 0);
-    }
-
-    private <T> T getMapValue(String key) {
-        return (T) tempMap.get(key);
-    }
-
-    private Map.Entry<String, Object> getTail() {
-        Iterator<Map.Entry<String, Object>> iterator = tempMap.entrySet().iterator();
-        Map.Entry<String, Object> tail = null;
-        while (iterator.hasNext()) {
-            tail = iterator.next();
-        }
-        return tail;
-    }
-
-    private void setMapValue(String key, Object value) {
-        if (tempMap.size() > 10000) {
-            Map.Entry<String, Object> last = getTail();
-            if (last != null) {
-                tempMap.remove(last.getKey());
-            }
-        }
-        tempMap.put(key, value);
     }
 
     private <T, Item> T getMongoValue(String key, Class<Item> itemClass) {
@@ -104,22 +69,7 @@ public class SecondaryStorage {
     }
 
     public <T, Item> T get(String key, Class<Item> itemClass) {
-        T mapValue = getMapValue(key);
-        if (mapValue != null) {
-            return mapValue;
-        }
-        T redisValue = RedisManager.getInstance().get(key);
-        if (redisValue != null) {
-            setMapValue(key, redisValue);
-            return redisValue;
-        }
-        T mongoValue = getMongoValue(key, itemClass);
-        if (mongoValue != null) {
-            setMapValue(key, mongoValue);
-            RedisManager.getInstance().set(key, mongoValue, 30, TimeUnit.SECONDS);
-            return mongoValue;
-        }
-        return null;
+        return getMongoValue(key, itemClass);
     }
 
     /**
@@ -128,8 +78,6 @@ public class SecondaryStorage {
      * @param key 存储key
      */
     public void remove(String key) {
-        tempMap.remove(key);
-        RedisManager.getInstance().remove(key);
         removeMongo(key);
     }
 }
