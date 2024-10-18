@@ -144,7 +144,7 @@ abstract class BaseMongo {
         }
         Query query = new Query();
         Criteria criteria = new Criteria();
-        criteria.and("id").is(id);
+        criteria.and("_id").is(id);
         query.addCriteria(criteria);
         mongoTemplate.remove(query, getCollectionName(environment, collectionName));
     }
@@ -239,7 +239,7 @@ abstract class BaseMongo {
         }
         Query query = new Query();
         Criteria criteria = new Criteria();
-        criteria.and("id").is(id);
+        criteria.and("_id").is(id);
         query.addCriteria(criteria);
         MongoCacheEntity entity = mongoTemplate.findById(id, MongoCacheEntity.class, getCollectionName(environment, collectionName));
         if (entity == null) {
@@ -534,7 +534,7 @@ abstract class BaseMongo {
     public <Item> Item getQueryById(String id, Class<Item> itemClass, String collectionName) {
         Query query = new Query();
         Criteria criteria = new Criteria();
-        criteria.and("id").is(id);
+        criteria.and("_id").is(id);
         query.addCriteria(criteria);
         List<Item> list = this.getQuery(query, itemClass, collectionName);
         if (ObjectJudge.isNullOrEmpty(list)) {
@@ -555,7 +555,7 @@ abstract class BaseMongo {
     public <Item> List<Item> getQueryByIds(Collection<String> ids, Class<Item> itemClass, String collectionName) {
         Query query = new Query();
         Criteria criteria = new Criteria();
-        criteria.and("id").in(ids);
+        criteria.and("_id").in(ids);
         query.addCriteria(criteria);
         return this.getQuery(query, itemClass, collectionName);
     }
