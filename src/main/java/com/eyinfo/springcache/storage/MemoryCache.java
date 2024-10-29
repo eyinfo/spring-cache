@@ -115,7 +115,7 @@ public class MemoryCache {
         cacheEntry.setContent(content);
         cacheEntry.setPeriod(period);
         cacheEntry.setUnit(unit);
-        cacheEntry.setStartTime(TimeSyncUtils.getUTCTimestamp());
+        cacheEntry.setStartTime(TimeSyncUtils.getCurrentTimestamp());
         this.set(key, cacheEntry);
     }
 
@@ -141,7 +141,7 @@ public class MemoryCache {
             long millis = TimeoutUtils.toMillis(entry.getPeriod(), entry.getUnit());
             long startTime = entry.getStartTime();
             long endTime = startTime + millis;
-            boolean expired = TimeSyncUtils.getUTCTimestamp() > endTime;
+            boolean expired = TimeSyncUtils.getCurrentTimestamp() > endTime;
             if (expired) {
                 map.remove(key);
                 return null;

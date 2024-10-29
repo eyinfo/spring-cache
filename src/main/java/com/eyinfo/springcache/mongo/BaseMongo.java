@@ -152,6 +152,36 @@ abstract class BaseMongo {
     /**
      * 根据id删除缓存
      *
+     * @param environment    环境
+     * @param ids            缓存记录id集,缓存时由content md5等到
+     * @param collectionName 集合名称
+     */
+    void deleteByIds(Environment environment, Collection<String> ids, String collectionName) {
+        MongoTemplate mongoTemplate = getMongoTemplate();
+        if (mongoTemplate == null || ObjectJudge.isNullOrEmpty(ids)) {
+            return;
+        }
+        Query query = new Query();
+        Criteria criteria = new Criteria();
+        criteria.and("_id").in(ids);
+        query.addCriteria(criteria);
+        mongoTemplate.remove(query, getCollectionName(environment, collectionName));
+    }
+
+    /**
+     * 根据id删除缓存
+     *
+     * @param environment    环境
+     * @param ids            缓存记录id集,缓存时由content md5等到
+     * @param collectionName 集合名称
+     */
+    void deleteByIds(Collection<String> ids, String collectionName) {
+        deleteByIds(StorageUtils.getEnvironment(), ids, collectionName);
+    }
+
+    /**
+     * 根据id删除缓存
+     *
      * @param environment 环境
      * @param id          缓存记录id,缓存时由content md5等到
      */

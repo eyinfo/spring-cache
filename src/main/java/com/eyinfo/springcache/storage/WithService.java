@@ -109,10 +109,10 @@ public class WithService {
      * @return 数据id
      */
     public <T extends BaseEntity, M extends ItemMapper<T>> Long insertOrUpdate(M mapper, T entity) {
-        entity.setModifyTime(TimeSyncUtils.getUTCTimestamp());
+        entity.setModifyTime(TimeSyncUtils.getCurrentTimestamp());
         if (entity.getId() == null || entity.getId() == 0) {
             //自增id会自动填充到entity中
-            entity.setCreateTime(TimeSyncUtils.getUTCTimestamp());
+            entity.setCreateTime(TimeSyncUtils.getCurrentTimestamp());
             mapper.insertSelective(entity);
         } else {
             mapper.updateByPrimaryKeySelective(entity);
@@ -133,9 +133,9 @@ public class WithService {
      */
     public <T extends BaseEntity, M extends ItemMapper<T>> Long updateByPrimaryKeySelective(M mapper, T entity) {
         if (entity.getCreateTime() == null) {
-            entity.setCreateTime(TimeSyncUtils.getUTCTimestamp());
+            entity.setCreateTime(TimeSyncUtils.getCurrentTimestamp());
         }
-        entity.setModifyTime(TimeSyncUtils.getUTCTimestamp());
+        entity.setModifyTime(TimeSyncUtils.getCurrentTimestamp());
         mapper.updateByPrimaryKeySelective(entity);
         Class<? extends BaseEntity> entityClass = entity.getClass();
         TableName declaredAnnotation = entityClass.getDeclaredAnnotation(TableName.class);
