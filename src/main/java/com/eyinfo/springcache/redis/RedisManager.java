@@ -2,6 +2,7 @@ package com.eyinfo.springcache.redis;
 
 import com.eyinfo.foundation.enums.Environment;
 import com.eyinfo.springcache.storage.StorageUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -96,5 +97,39 @@ public class RedisManager extends BaseRedis {
     public <R> R get(String key) {
         Environment environment = StorageUtils.getEnvironment();
         return super.get(environment, key);
+    }
+
+    public <K> Long increment(K key) {
+        RedisTemplate<Object, Object> redisTemplate = super.getRedisTemplate();
+        return redisTemplate.opsForValue().increment(key);
+    }
+
+    public <K> Long increment(K key, long delta) {
+        RedisTemplate<Object, Object> redisTemplate = super.getRedisTemplate();
+
+        return redisTemplate.opsForValue().increment(key, delta);
+    }
+
+    public <K> Double increment(K key, double delta) {
+        RedisTemplate<Object, Object> redisTemplate = super.getRedisTemplate();
+        return redisTemplate.opsForValue().increment(key, delta);
+    }
+
+    public <K> Long decrement(K key) {
+        RedisTemplate<Object, Object> redisTemplate = super.getRedisTemplate();
+        return redisTemplate.opsForValue().decrement(key);
+    }
+
+    public <K> Long decrement(K key, long delta) {
+        RedisTemplate<Object, Object> redisTemplate = super.getRedisTemplate();
+        return redisTemplate.opsForValue().decrement(key, delta);
+    }
+
+    public <K, V> Boolean setIfPresent(K key, V value) {
+        return super.getRedisTemplate().opsForValue().setIfPresent(key, value);
+    }
+
+    public <K, V> Boolean setIfPresent(K key, V value, long timeout, TimeUnit unit) {
+        return super.getRedisTemplate().opsForValue().setIfPresent(key, value, timeout, unit);
     }
 }
