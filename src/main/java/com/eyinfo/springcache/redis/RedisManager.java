@@ -100,36 +100,49 @@ public class RedisManager extends BaseRedis {
     }
 
     public <K> Long increment(K key) {
+        Environment environment = StorageUtils.getEnvironment();
+        String cacheKey = String.format("%s_%s", environment.name(), key);
         RedisTemplate<Object, Object> redisTemplate = super.getRedisTemplate();
-        return redisTemplate.opsForValue().increment(key);
+        return redisTemplate.opsForValue().increment(cacheKey);
     }
 
     public <K> Long increment(K key, long delta) {
+        Environment environment = StorageUtils.getEnvironment();
+        String cacheKey = String.format("%s_%s", environment.name(), key);
         RedisTemplate<Object, Object> redisTemplate = super.getRedisTemplate();
-
-        return redisTemplate.opsForValue().increment(key, delta);
+        return redisTemplate.opsForValue().increment(cacheKey, delta);
     }
 
     public <K> Double increment(K key, double delta) {
+        Environment environment = StorageUtils.getEnvironment();
+        String cacheKey = String.format("%s_%s", environment.name(), key);
         RedisTemplate<Object, Object> redisTemplate = super.getRedisTemplate();
-        return redisTemplate.opsForValue().increment(key, delta);
+        return redisTemplate.opsForValue().increment(cacheKey, delta);
     }
 
     public <K> Long decrement(K key) {
+        Environment environment = StorageUtils.getEnvironment();
+        String cacheKey = String.format("%s_%s", environment.name(), key);
         RedisTemplate<Object, Object> redisTemplate = super.getRedisTemplate();
-        return redisTemplate.opsForValue().decrement(key);
+        return redisTemplate.opsForValue().decrement(cacheKey);
     }
 
     public <K> Long decrement(K key, long delta) {
+        Environment environment = StorageUtils.getEnvironment();
+        String cacheKey = String.format("%s_%s", environment.name(), key);
         RedisTemplate<Object, Object> redisTemplate = super.getRedisTemplate();
-        return redisTemplate.opsForValue().decrement(key, delta);
+        return redisTemplate.opsForValue().decrement(cacheKey, delta);
     }
 
     public <K, V> Boolean setIfPresent(K key, V value) {
-        return super.getRedisTemplate().opsForValue().setIfPresent(key, value);
+        Environment environment = StorageUtils.getEnvironment();
+        String cacheKey = String.format("%s_%s", environment.name(), key);
+        return super.getRedisTemplate().opsForValue().setIfPresent(cacheKey, value);
     }
 
     public <K, V> Boolean setIfPresent(K key, V value, long timeout, TimeUnit unit) {
-        return super.getRedisTemplate().opsForValue().setIfPresent(key, value, timeout, unit);
+        Environment environment = StorageUtils.getEnvironment();
+        String cacheKey = String.format("%s_%s", environment.name(), key);
+        return super.getRedisTemplate().opsForValue().setIfPresent(cacheKey, value, timeout, unit);
     }
 }

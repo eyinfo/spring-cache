@@ -3,7 +3,7 @@
   "component": {
     "group": "com.eyinfo",
     "module": "spring-cache",
-    "version": "1.0.51",
+    "version": "1.0.52",
     "attributes": {
       "org.gradle.status": "release"
     }
@@ -62,13 +62,13 @@
       ],
       "files": [
         {
-          "name": "spring-cache-1.0.51.jar",
-          "url": "spring-cache-1.0.51.jar",
-          "size": 96894,
-          "sha512": "e49e619a0dfdf0d156ce9a91cc7175e60d69900dc2fb3de6ef0c7060729b8009b4c5165e40f8dd75edbd17fff9b4bcd9df6e9a6a822c0e29c1e272001bb6a0ff",
-          "sha256": "d6a6ae84ea28cae7b570f319667fa6b5d6666bac453e1f414feb2b0bd4505be0",
-          "sha1": "86d1c3fa38af9427bf8d3735e6f47b3d3b826887",
-          "md5": "8a78c2ba9b5213370cd59d6fa7fe2818"
+          "name": "spring-cache-1.0.52.jar",
+          "url": "spring-cache-1.0.52.jar",
+          "size": 97122,
+          "sha512": "905ca45c66e91e81d81bf9d1f774e27ea8a941481805cd8c680f19f1f0260c2c0732c5bb700dc82c2f6ea20bdeb716a05f15d7fb6789108e5cac4aaa408ccc65",
+          "sha256": "79f36bb46e6de25dbd6f605ac7cd9a8f885e8fe8d397075af8f0c98c58979c61",
+          "sha1": "f2cf09454eb6b469b74aa9e36e462d64c0e838e4",
+          "md5": "1c44b345a3f994688baa7d388ba43568"
         }
       ]
     },
@@ -120,13 +120,13 @@
       ],
       "files": [
         {
-          "name": "spring-cache-1.0.51.jar",
-          "url": "spring-cache-1.0.51.jar",
-          "size": 96894,
-          "sha512": "e49e619a0dfdf0d156ce9a91cc7175e60d69900dc2fb3de6ef0c7060729b8009b4c5165e40f8dd75edbd17fff9b4bcd9df6e9a6a822c0e29c1e272001bb6a0ff",
-          "sha256": "d6a6ae84ea28cae7b570f319667fa6b5d6666bac453e1f414feb2b0bd4505be0",
-          "sha1": "86d1c3fa38af9427bf8d3735e6f47b3d3b826887",
-          "md5": "8a78c2ba9b5213370cd59d6fa7fe2818"
+          "name": "spring-cache-1.0.52.jar",
+          "url": "spring-cache-1.0.52.jar",
+          "size": 97122,
+          "sha512": "905ca45c66e91e81d81bf9d1f774e27ea8a941481805cd8c680f19f1f0260c2c0732c5bb700dc82c2f6ea20bdeb716a05f15d7fb6789108e5cac4aaa408ccc65",
+          "sha256": "79f36bb46e6de25dbd6f605ac7cd9a8f885e8fe8d397075af8f0c98c58979c61",
+          "sha1": "f2cf09454eb6b469b74aa9e36e462d64c0e838e4",
+          "md5": "1c44b345a3f994688baa7d388ba43568"
         }
       ]
     }
