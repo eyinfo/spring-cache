@@ -4,6 +4,8 @@ import com.eyinfo.foundation.enums.Environment;
 import com.eyinfo.springcache.storage.StorageUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -144,5 +146,47 @@ public class RedisManager extends BaseRedis {
         Environment environment = StorageUtils.getEnvironment();
         String cacheKey = String.format("%s_%s", environment.name(), key);
         return super.getRedisTemplate().opsForValue().setIfPresent(cacheKey, value, timeout, unit);
+    }
+
+    public <Item> void setList(String key, List<Item> items) {
+        Environment environment = StorageUtils.getEnvironment();
+        String cacheKey = String.format("%s_%s", environment.name(), key);
+        super.getRedisTemplate().opsForList().leftPushAll(cacheKey, items);
+    }
+
+    public <Item> List<Item> getList(String key) {
+        Environment environment = StorageUtils.getEnvironment();
+        String cacheKey = String.format("%s_%s", environment.name(), key);
+        return (List<Item>) super.getRedisTemplate().opsForList().range(cacheKey, 0, -1);
+    }
+
+    public <Item> void setSets(String key, Set<Item> items) {
+        Environment environment = StorageUtils.getEnvironment();
+        String cacheKey = String.format("%s_%s", environment.name(), key);
+        super.getRedisTemplate().opsForSet().add(cacheKey, items);
+    }
+
+    public <Item> Set<Item> getSets(String key) {
+        Environment environment = StorageUtils.getEnvironment();
+        String cacheKey = String.format("%s_%s", environment.name(), key);
+        return (Set<Item>) super.getRedisTemplate().opsForSet().members(cacheKey);
+    }
+
+    public <V> void setHash(String key, Map<String, V> map) {
+        Environment environment = StorageUtils.getEnvironment();
+        String cacheKey = String.format("%s_%s", environment.name(), key);
+        super.getRedisTemplate().opsForHash().putAll(cacheKey, map);
+    }
+
+    public <V> void setHash(String key, String hashKey, V value) {
+        Environment environment = StorageUtils.getEnvironment();
+        String cacheKey = String.format("%s_%s", environment.name(), key);
+        super.getRedisTemplate().opsForHash().put(cacheKey, hashKey, value);
+    }
+
+    public <V> V getHashValue(String key, String hashKey) {
+        Environment environment = StorageUtils.getEnvironment();
+        String cacheKey = String.format("%s_%s", environment.name(), key);
+        return (V) super.getRedisTemplate().opsForHash().get(cacheKey, hashKey);
     }
 }
