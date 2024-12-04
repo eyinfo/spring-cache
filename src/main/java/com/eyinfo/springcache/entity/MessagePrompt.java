@@ -4,6 +4,7 @@ import com.eyinfo.foundation.entity.BaseResponse;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
@@ -14,7 +15,7 @@ public class MessagePrompt {
     private Map<String, BaseResponse> prompt;
 
     public Map<String, BaseResponse> getPrompt() {
-        return prompt;
+        return prompt == null ? new HashMap<>() : prompt;
     }
 
     public void setPrompt(Map<String, BaseResponse> prompt) {
