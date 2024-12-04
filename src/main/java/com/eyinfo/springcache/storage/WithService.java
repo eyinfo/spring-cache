@@ -169,7 +169,7 @@ public class WithService {
      * @param skipCache    是否跳过缓存
      * @return
      */
-    public <Item, Mapper> PageListResponse<List<Item>> getGenericPageList(Mapper mapper, PageRequest request, QueryWrapper queryWrapper, Class<Item> itemClass, DbMethodEntry methodEntry, boolean skipCache) {
+    public <Item, Mapper> PageListResponse<List<Item>> getGenericPageList(Mapper mapper, PageRequest request, QueryWrapper queryWrapper, Class<Item> itemClass, boolean skipCache) {
         PageConditions conditions = new PageConditions();
         conditions.setQueryWrapper(queryWrapper == null ? new QueryWrapper() : queryWrapper);
         if (request.getPage() == null) {
@@ -184,7 +184,7 @@ public class WithService {
         if (request.getLimit() > 0) {
             conditions.setPageSize(request.getLimit());
         }
-        PageInfo<Item> pageInfo = StorageManager.getInstance().queryPage(mapper, itemClass, methodEntry, conditions, skipCache);
+        PageInfo<Item> pageInfo = StorageManager.getInstance().queryPage(mapper, itemClass, conditions, skipCache);
         return EyResult.response(pageInfo);
     }
 
@@ -199,8 +199,8 @@ public class WithService {
      * @param skipCache    是否跳过缓存
      * @return
      */
-    public <T extends BaseEntity, M extends ItemMapper<T>> PageListResponse<List<T>> getPageList(M mapper, PageRequest request, QueryWrapper queryWrapper, Class<T> itemClass, DbMethodEntry methodEntry, boolean skipCache) {
-        return this.getGenericPageList(mapper, request, queryWrapper, itemClass, methodEntry, skipCache);
+    public <T extends BaseEntity, M extends ItemMapper<T>> PageListResponse<List<T>> getPageList(M mapper, PageRequest request, QueryWrapper queryWrapper, Class<T> itemClass, boolean skipCache) {
+        return this.getGenericPageList(mapper, request, queryWrapper, itemClass, skipCache);
     }
 
     /**
@@ -213,8 +213,8 @@ public class WithService {
      * @param methodEntry  查询缓存定义
      * @return
      */
-    public <T extends BaseEntity, M extends ItemMapper<T>> PageListResponse<List<T>> getPageList(M mapper, PageRequest request, QueryWrapper queryWrapper, Class<T> itemClass, DbMethodEntry methodEntry) {
-        return this.getPageList(mapper, request, queryWrapper, itemClass, methodEntry, false);
+    public <T extends BaseEntity, M extends ItemMapper<T>> PageListResponse<List<T>> getPageList(M mapper, PageRequest request, QueryWrapper queryWrapper, Class<T> itemClass) {
+        return this.getPageList(mapper, request, queryWrapper, itemClass, false);
     }
 
     /**
@@ -227,8 +227,8 @@ public class WithService {
      * @param methodEntry  查询缓存定义
      * @return
      */
-    public <Item, Mapper> PageListResponse<List<Item>> getGenericPageList(Mapper mapper, PageRequest request, QueryWrapper queryWrapper, Class<Item> itemClass, DbMethodEntry methodEntry) {
-        return this.getGenericPageList(mapper, request, queryWrapper, itemClass, methodEntry, false);
+    public <Item, Mapper> PageListResponse<List<Item>> getGenericPageList(Mapper mapper, PageRequest request, QueryWrapper queryWrapper, Class<Item> itemClass) {
+        return this.getGenericPageList(mapper, request, queryWrapper, itemClass, false);
     }
 
     /**
@@ -240,8 +240,8 @@ public class WithService {
      * @param methodEntry 查询缓存定义
      * @return
      */
-    public <T extends BaseEntity, M extends ItemMapper<T>> PageListResponse<List<T>> getPageList(M mapper, PageRequest request, Class<T> itemClass, DbMethodEntry methodEntry) {
-        return this.getPageList(mapper, request, null, itemClass, methodEntry, false);
+    public <T extends BaseEntity, M extends ItemMapper<T>> PageListResponse<List<T>> getPageList(M mapper, PageRequest request, Class<T> itemClass) {
+        return this.getPageList(mapper, request, null, itemClass, false);
     }
 
     /**
@@ -253,8 +253,8 @@ public class WithService {
      * @param methodEntry 查询缓存定义
      * @return
      */
-    public <Item, Mapper> PageListResponse<List<Item>> getGenericPageList(Mapper mapper, PageRequest request, Class<Item> itemClass, DbMethodEntry methodEntry) {
-        return this.getGenericPageList(mapper, request, null, itemClass, methodEntry, false);
+    public <Item, Mapper> PageListResponse<List<Item>> getGenericPageList(Mapper mapper, PageRequest request, Class<Item> itemClass) {
+        return this.getGenericPageList(mapper, request, null, itemClass, false);
     }
 
     /**
@@ -269,11 +269,11 @@ public class WithService {
      * @param skipCache    是否跳过缓存
      * @return
      */
-    public <T extends BaseEntity, M extends ItemMapper<T>> PageListResponse<List<T>> getPageList(M mapper, int page, int limit, QueryWrapper queryWrapper, Class<T> itemClass, DbMethodEntry methodEntry, boolean skipCache) {
+    public <T extends BaseEntity, M extends ItemMapper<T>> PageListResponse<List<T>> getPageList(M mapper, int page, int limit, QueryWrapper queryWrapper, Class<T> itemClass, boolean skipCache) {
         PageRequest request = new PageRequest();
         request.setPage(page);
         request.setLimit(limit);
-        return this.getPageList(mapper, request, queryWrapper, itemClass, methodEntry, skipCache);
+        return this.getPageList(mapper, request, queryWrapper, itemClass, skipCache);
     }
 
     /**
@@ -288,11 +288,11 @@ public class WithService {
      * @param skipCache    是否跳过缓存
      * @return
      */
-    public <Item, Mapper> PageListResponse<List<Item>> getGenericPageList(Mapper mapper, int page, int limit, QueryWrapper queryWrapper, Class<Item> itemClass, DbMethodEntry methodEntry, boolean skipCache) {
+    public <Item, Mapper> PageListResponse<List<Item>> getGenericPageList(Mapper mapper, int page, int limit, QueryWrapper queryWrapper, Class<Item> itemClass, boolean skipCache) {
         PageRequest request = new PageRequest();
         request.setPage(page);
         request.setLimit(limit);
-        return this.getGenericPageList(mapper, request, queryWrapper, itemClass, methodEntry, skipCache);
+        return this.getGenericPageList(mapper, request, queryWrapper, itemClass, skipCache);
     }
 
     /**
@@ -306,8 +306,8 @@ public class WithService {
      * @param queryWrapper 查询条件
      * @return
      */
-    public <T extends BaseEntity, M extends ItemMapper<T>> PageListResponse<List<T>> getPageList(M mapper, int page, int limit, Class<T> itemClass, DbMethodEntry methodEntry, QueryWrapper queryWrapper) {
-        return this.getPageList(mapper, page, limit, queryWrapper, itemClass, methodEntry, false);
+    public <T extends BaseEntity, M extends ItemMapper<T>> PageListResponse<List<T>> getPageList(M mapper, int page, int limit, Class<T> itemClass, QueryWrapper queryWrapper) {
+        return this.getPageList(mapper, page, limit, queryWrapper, itemClass, false);
     }
 
     /**
@@ -321,8 +321,8 @@ public class WithService {
      * @param queryWrapper 查询条件
      * @return
      */
-    public <Item, Mapper> PageListResponse<List<Item>> getGenericPageList(Mapper mapper, int page, int limit, Class<Item> itemClass, DbMethodEntry methodEntry, QueryWrapper queryWrapper) {
-        return this.getGenericPageList(mapper, page, limit, queryWrapper, itemClass, methodEntry, false);
+    public <Item, Mapper> PageListResponse<List<Item>> getGenericPageList(Mapper mapper, int page, int limit, Class<Item> itemClass, QueryWrapper queryWrapper) {
+        return this.getGenericPageList(mapper, page, limit, queryWrapper, itemClass, false);
     }
 
     /**
@@ -335,8 +335,8 @@ public class WithService {
      * @param methodEntry 查询缓存定义
      * @return
      */
-    public <T extends BaseEntity, M extends ItemMapper<T>> PageListResponse<List<T>> getPageList(M mapper, int page, int limit, Class<T> itemClass, DbMethodEntry methodEntry) {
-        return this.getPageList(mapper, page, limit, null, itemClass, methodEntry, false);
+    public <T extends BaseEntity, M extends ItemMapper<T>> PageListResponse<List<T>> getPageList(M mapper, int page, int limit, Class<T> itemClass) {
+        return this.getPageList(mapper, page, limit, null, itemClass, false);
     }
 
     /**
@@ -349,8 +349,8 @@ public class WithService {
      * @param methodEntry 查询缓存定义
      * @return
      */
-    public <Item, Mapper> PageListResponse<List<Item>> getGenericPageList(Mapper mapper, int page, int limit, Class<Item> itemClass, DbMethodEntry methodEntry) {
-        return this.getGenericPageList(mapper, page, limit, null, itemClass, methodEntry, false);
+    public <Item, Mapper> PageListResponse<List<Item>> getGenericPageList(Mapper mapper, int page, int limit, Class<Item> itemClass) {
+        return this.getGenericPageList(mapper, page, limit, null, itemClass, false);
     }
 
     public <T extends BaseEntity, M extends ItemMapper<T>> boolean isExist(M mapper, QueryWrapper queryWrapper) {
