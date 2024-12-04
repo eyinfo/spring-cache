@@ -1,6 +1,7 @@
 package com.eyinfo.springcache.storage;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.eyinfo.foundation.encrypts.MD5Encrypt;
 import com.eyinfo.foundation.utils.ObjectJudge;
 import com.eyinfo.springcache.storage.entity.ModelCacheConditions;
 import com.eyinfo.springcache.storage.entity.PageConditions;
@@ -52,11 +53,12 @@ public class StorageManager extends WithService {
      * @param <Dao>       mapper type
      * @return PageInfo分页数据
      */
-    public <Item, Dao> PageInfo<Item> queryPage(Dao dao, Class<Item> itemClass, DbMethodEntry methodEntry, PageConditions conditions, boolean skipCache) {
+    public <Item, Dao> PageInfo<Item> queryPage(Dao dao, Class<Item> itemClass, PageConditions conditions, boolean skipCache) {
+        DbMethodEntry methodEntry = DbMethodManager.getList(MD5Encrypt.md5(String.valueOf(itemClass.hashCode())));
         if (skipCache) {
             return queryService.select(dao, itemClass, methodEntry, conditions, null);
         }
-        return queryService.select(dao, itemClass, methodEntry, conditions, new OnCacheStrategy<SearchCondition, PageInfo<Item>, Item>() {
+        return queryService.select(dao, itemClass, methodEntry, conditions, new OnCacheStrategy<>() {
             @Override
             public PageInfo<Item> onQueryCache(DbMethodEntry methodEntry, SearchCondition conditions, Class<Item> itemClass) {
                 QueryListStrategy strategy = new QueryListStrategy();
@@ -82,8 +84,8 @@ public class StorageManager extends WithService {
      * @param <Dao>       mapper type
      * @return PageInfo分页数据
      */
-    public <Item, Dao extends PrototypeMapper<Item>> PageInfo<Item> queryPage(Dao dao, Class itemClass, DbMethodEntry methodEntry, PageConditions conditions) {
-        return queryPage(dao, itemClass, methodEntry, conditions, false);
+    public <Item, Dao extends PrototypeMapper<Item>> PageInfo<Item> queryPage(Dao dao, Class itemClass, PageConditions conditions) {
+        return queryPage(dao, itemClass, conditions, false);
     }
 
     /**
@@ -97,8 +99,9 @@ public class StorageManager extends WithService {
      * @param <Dao>        mapper type
      * @return 数据列表
      */
-    public <Item, Dao extends PrototypeMapper<Item>> List<Item> queryListPlus(Dao dao, Class<Item> itemClass, DbMethodEntry methodEntry, QueryWrapper queryWrapper) {
-        return queryService.selectPlus(dao, itemClass, methodEntry, queryWrapper, new OnCacheStrategy<QueryWrapper, List<Item>, Item>() {
+    public <Item, Dao extends PrototypeMapper<Item>> List<Item> queryListPlus(Dao dao, Class<Item> itemClass, QueryWrapper queryWrapper) {
+        DbMethodEntry methodEntry = DbMethodManager.getList(MD5Encrypt.md5(String.valueOf(itemClass.hashCode())));
+        return queryService.selectPlus(dao, itemClass, methodEntry, queryWrapper, new OnCacheStrategy<>() {
             @Override
             public List<Item> onQueryCache(DbMethodEntry methodEntry, QueryWrapper queryWrapper, Class<Item> targetClass) {
                 QueryListStrategy strategy = new QueryListStrategy();
@@ -126,14 +129,16 @@ public class StorageManager extends WithService {
      * @param <Dao>        mapper type
      * @return
      */
-    public <T, Dao extends PrototypeMapper<T>> T queryModelPlus(Dao dao, DbMethodEntry methodEntry, Class<T> entityClass, QueryWrapper queryWrapper, boolean skipCache, boolean isMergeQuery) {
-        if (dao == null || methodEntry == null || queryWrapper == null) {
+    public <T, Dao extends PrototypeMapper<T>> T queryModelPlus(Dao dao, Class<T> entityClass, QueryWrapper queryWrapper, boolean skipCache, boolean isMergeQuery) {
+        if (dao == null || queryWrapper == null) {
             return null;
         }
+        DbMethodEntry methodEntry = DbMethodManager.getList(MD5Encrypt.md5(String.valueOf(entityClass.hashCode())));
+
         ModelCacheConditions conditions = new ModelCacheConditions();
         conditions.setQueryWrapper(queryWrapper);
         conditions.setMergeQuery(isMergeQuery);
-        return queryService.select(dao, entityClass, methodEntry, conditions, new OnCacheStrategy<ModelCacheConditions, T, T>() {
+        return queryService.select(dao, entityClass, methodEntry, conditions, new OnCacheStrategy<>() {
             @Override
             public T onQueryCache(DbMethodEntry methodEntry, ModelCacheConditions conditions, Class<T> targetClass) {
                 QueryStrategy strategy = new QueryStrategy();
@@ -148,14 +153,17 @@ public class StorageManager extends WithService {
         }, skipCache);
     }
 
-    public <Dao> String queryModelPlus(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper, boolean skipCache, boolean isMergeQuery) {
-        if (dao == null || methodEntry == null || queryWrapper == null) {
+    public <Dao> String queryModelPlus(Dao dao, QueryWrapper queryWrapper, boolean skipCache, boolean isMergeQuery) {
+        if (dao == null || queryWrapper == null) {
             return null;
         }
+        Class entityClass = queryWrapper.getEntityClass();
+        DbMethodEntry methodEntry = DbMethodManager.getList(MD5Encrypt.md5(String.valueOf(entityClass.hashCode())));
+
         ModelCacheConditions conditions = new ModelCacheConditions();
         conditions.setQueryWrapper(queryWrapper);
         conditions.setMergeQuery(isMergeQuery);
-        return queryService.select(dao, methodEntry, conditions, new OnCacheStrategy<ModelCacheConditions, String, String>() {
+        return queryService.select(dao, methodEntry, conditions, new OnCacheStrategy<>() {
             @Override
             public String onQueryCache(DbMethodEntry methodEntry, ModelCacheConditions conditions, Class<String> targetClass) {
                 QueryStrategy strategy = new QueryStrategy();
@@ -170,12 +178,12 @@ public class StorageManager extends WithService {
         }, skipCache);
     }
 
-    public <Dao, T> String queryModelPlus(Dao dao, DbMethodEntry methodEntry, QueryWrapper<T> queryWrapper, boolean isMergeQuery) {
-        return queryModelPlus(dao, methodEntry, queryWrapper, false, isMergeQuery);
+    public <Dao, T> String queryModelPlus(Dao dao, QueryWrapper<T> queryWrapper, boolean isMergeQuery) {
+        return queryModelPlus(dao, queryWrapper, false, isMergeQuery);
     }
 
-    public <Dao, T> String queryModelPlus(Dao dao, DbMethodEntry methodEntry, QueryWrapper<T> queryWrapper) {
-        return queryModelPlus(dao, methodEntry, queryWrapper, true);
+    public <Dao, T> String queryModelPlus(Dao dao, QueryWrapper<T> queryWrapper) {
+        return queryModelPlus(dao, queryWrapper, true);
     }
 
     /**
@@ -190,8 +198,8 @@ public class StorageManager extends WithService {
      * @param <Dao>        mapper type
      * @return
      */
-    public <T, Dao extends PrototypeMapper<T>> T queryModelPlus(Dao dao, DbMethodEntry methodEntry, Class<T> entityClass, QueryWrapper queryWrapper, boolean isMergeQuery) {
-        return queryModelPlus(dao, methodEntry, entityClass, queryWrapper, false, isMergeQuery);
+    public <T, Dao extends PrototypeMapper<T>> T queryModelPlus(Dao dao, Class<T> entityClass, QueryWrapper queryWrapper, boolean isMergeQuery) {
+        return queryModelPlus(dao, entityClass, queryWrapper, false, isMergeQuery);
     }
 
     /**
@@ -205,8 +213,8 @@ public class StorageManager extends WithService {
      * @param <Dao>        mapper type
      * @return
      */
-    public <T, Dao extends PrototypeMapper<T>> T queryModelPlus(Dao dao, DbMethodEntry methodEntry, Class<T> entityClass, QueryWrapper queryWrapper) {
-        return queryModelPlus(dao, methodEntry, entityClass, queryWrapper, true);
+    public <T, Dao extends PrototypeMapper<T>> T queryModelPlus(Dao dao, Class<T> entityClass, QueryWrapper queryWrapper) {
+        return queryModelPlus(dao, entityClass, queryWrapper, true);
     }
 
     /**
@@ -222,13 +230,13 @@ public class StorageManager extends WithService {
      * @param <Dao>        mapper type
      * @return
      */
-    public <T, Dao extends PrototypeMapper<T>> T queryModelById(Dao dao, DbMethodEntry methodEntry, Class<T> entityClass, Long idValue, boolean skipCache, boolean isMergeQuery) {
+    public <T, Dao extends PrototypeMapper<T>> T queryModelById(Dao dao, Class<T> entityClass, Long idValue, boolean skipCache, boolean isMergeQuery) {
         if (entityClass == null || ObjectJudge.isNullOrZero(idValue)) {
             return null;
         }
         QueryWrapper<T> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("id", idValue);
-        return queryModelPlus(dao, methodEntry, entityClass, queryWrapper, skipCache, isMergeQuery);
+        return queryModelPlus(dao, entityClass, queryWrapper, skipCache, isMergeQuery);
     }
 
     /**
@@ -243,8 +251,8 @@ public class StorageManager extends WithService {
      * @param <Dao>        mapper type
      * @return
      */
-    public <T, Dao extends PrototypeMapper<T>> T queryModelById(Dao dao, DbMethodEntry methodEntry, Class<T> entityClass, Long idValue, boolean isMergeQuery) {
-        return queryModelById(dao, methodEntry, entityClass, idValue, false, isMergeQuery);
+    public <T, Dao extends PrototypeMapper<T>> T queryModelById(Dao dao, Class<T> entityClass, Long idValue, boolean isMergeQuery) {
+        return queryModelById(dao, entityClass, idValue, false, isMergeQuery);
     }
 
     /**
@@ -258,14 +266,16 @@ public class StorageManager extends WithService {
      * @param <Dao>       mapper type
      * @return
      */
-    public <T, Dao extends PrototypeMapper<T>> T queryModelById(Dao dao, DbMethodEntry methodEntry, Class<T> entityClass, Long idValue) {
-        return queryModelById(dao, methodEntry, entityClass, idValue, true);
+    public <T, Dao extends PrototypeMapper<T>> T queryModelById(Dao dao, Class<T> entityClass, Long idValue) {
+        return queryModelById(dao, entityClass, idValue, true);
     }
 
-    public <Dao extends PrototypeMapper<?>, T> void deletePlus(Dao dao, DbMethodEntry methodEntry, QueryWrapper queryWrapper, Class<T> itemClass) {
-        if (dao == null || methodEntry == null || queryWrapper == null) {
+    public <Dao extends PrototypeMapper<?>, T> void deletePlus(Dao dao, Class<T> itemClass, QueryWrapper queryWrapper) {
+        if (dao == null || queryWrapper == null) {
             return;
         }
+        DbMethodEntry methodEntry = DbMethodManager.getList(MD5Encrypt.md5(String.valueOf(itemClass.hashCode())));
+
         deleteService.deletePlus(dao, methodEntry, queryWrapper, itemClass, (methodEntry1, queryWrapper1, targetClass) -> {
             DeleteStrategy strategy = new DeleteStrategy();
             strategy.deletePlus(methodEntry1, queryWrapper1, targetClass);
