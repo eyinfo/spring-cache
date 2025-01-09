@@ -15,7 +15,6 @@ public class UserStore {
         return userStore;
     }
 
-    public final String tokenName = "Authorization";
     //失效时间2个月
     final long expiredTime = 5184000000L;
 

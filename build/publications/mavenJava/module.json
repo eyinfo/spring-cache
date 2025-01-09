@@ -3,7 +3,7 @@
   "component": {
     "group": "com.eyinfo",
     "module": "spring-cache",
-    "version": "1.1.9",
+    "version": "1.1.10",
     "attributes": {
       "org.gradle.status": "release"
     }
@@ -28,7 +28,7 @@
           "group": "com.eyinfo",
           "module": "foundation",
           "version": {
-            "requires": "1.0.42"
+            "requires": "1.0.43"
           }
         },
         {
@@ -62,13 +62,13 @@
       ],
       "files": [
         {
-          "name": "spring-cache-1.1.9.jar",
-          "url": "spring-cache-1.1.9.jar",
-          "size": 98450,
-          "sha512": "a14b140b35fea3f52a4ddf0df47a0ccd47e724a9aacf9b3a20c70c49d0473ada0447b9364949dbc52000a0c61196cf2c914eef2a2a609217910743105bd2e067",
-          "sha256": "63db1f0264c0a2bc06da3d181bffe7f7d99c27ca73afb0c99413f79e6c3169c5",
-          "sha1": "f2ee0cc1a363cf594bb84218fdd6f510add98663",
-          "md5": "0b579db91febecc36b911b097fd3c4c5"
+          "name": "spring-cache-1.1.10.jar",
+          "url": "spring-cache-1.1.10.jar",
+          "size": 98406,
+          "sha512": "c670a5f114ae59214e1b100712356765fcb4994ee527b88a953d5ca11ae91aa4caf873d8a87ac7ce24d2bcc5bbb7e0bf94b09cd3f6ded988b456c75d8c73209e",
+          "sha256": "64981ef834e469b4464ef20fd604fb922859c0208cbdd7111d1542c62913daef",
+          "sha1": "40eb01a7f48f588c718b0dc9867aff7ecffd4d40",
+          "md5": "6faeedb9e497035208ddb3c285adafae"
         }
       ]
     },
@@ -86,7 +86,7 @@
           "group": "com.eyinfo",
           "module": "foundation",
           "version": {
-            "requires": "1.0.42"
+            "requires": "1.0.43"
           }
         },
         {
@@ -120,13 +120,13 @@
       ],
       "files": [
         {
-          "name": "spring-cache-1.1.9.jar",
-          "url": "spring-cache-1.1.9.jar",
-          "size": 98450,
-          "sha512": "a14b140b35fea3f52a4ddf0df47a0ccd47e724a9aacf9b3a20c70c49d0473ada0447b9364949dbc52000a0c61196cf2c914eef2a2a609217910743105bd2e067",
-          "sha256": "63db1f0264c0a2bc06da3d181bffe7f7d99c27ca73afb0c99413f79e6c3169c5",
-          "sha1": "f2ee0cc1a363cf594bb84218fdd6f510add98663",
-          "md5": "0b579db91febecc36b911b097fd3c4c5"
+          "name": "spring-cache-1.1.10.jar",
+          "url": "spring-cache-1.1.10.jar",
+          "size": 98406,
+          "sha512": "c670a5f114ae59214e1b100712356765fcb4994ee527b88a953d5ca11ae91aa4caf873d8a87ac7ce24d2bcc5bbb7e0bf94b09cd3f6ded988b456c75d8c73209e",
+          "sha256": "64981ef834e469b4464ef20fd604fb922859c0208cbdd7111d1542c62913daef",
+          "sha1": "40eb01a7f48f588c718b0dc9867aff7ecffd4d40",
+          "md5": "6faeedb9e497035208ddb3c285adafae"
         }
       ]
     }
