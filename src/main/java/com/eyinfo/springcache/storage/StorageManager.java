@@ -46,7 +46,6 @@ public class StorageManager extends WithService {
      *
      * @param dao         table mapper
      * @param itemClass   data class
-     * @param methodEntry methodEntry
      * @param conditions  查询条件
      * @param skipCache   true-查询之后缓存数据；false-直接返回数据；
      * @param <Item>      数据类型
@@ -78,7 +77,6 @@ public class StorageManager extends WithService {
      *
      * @param dao         table mapper
      * @param itemClass   data class
-     * @param methodEntry methodEntry
      * @param conditions  查询条件
      * @param <Item>      数据类型
      * @param <Dao>       mapper type
@@ -93,7 +91,6 @@ public class StorageManager extends WithService {
      *
      * @param dao          table mapper
      * @param itemClass    data class
-     * @param methodEntry  methodEntry
      * @param queryWrapper 查询条件
      * @param <Item>       数据类型
      * @param <Dao>        mapper type
@@ -120,7 +117,6 @@ public class StorageManager extends WithService {
      * 查询数据
      *
      * @param dao          table mapper
-     * @param methodEntry  methodEntry
      * @param entityClass  data class
      * @param queryWrapper 查询条件
      * @param skipCache    true-查询之后缓存数据；false-直接返回数据；
@@ -190,7 +186,6 @@ public class StorageManager extends WithService {
      * 查询数据
      *
      * @param dao          table mapper
-     * @param methodEntry  methodEntry
      * @param entityClass  data class
      * @param queryWrapper 查询条件
      * @param isMergeQuery true-在查询同一对象数据时，合并数据的缓存策略；false-不做合并处理；
@@ -206,7 +201,6 @@ public class StorageManager extends WithService {
      * 查询数据
      *
      * @param dao          table mapper
-     * @param methodEntry  methodEntry
      * @param entityClass  data class
      * @param queryWrapper 查询条件
      * @param <T>          数据类型
@@ -221,7 +215,6 @@ public class StorageManager extends WithService {
      * 查询数据
      *
      * @param dao          table mapper
-     * @param methodEntry  methodEntry
      * @param entityClass  data class
      * @param idValue      id数据
      * @param skipCache    true-查询之后缓存数据；false-直接返回数据；
@@ -243,7 +236,6 @@ public class StorageManager extends WithService {
      * 查询数据
      *
      * @param dao          table mapper
-     * @param methodEntry  methodEntry
      * @param entityClass  data class
      * @param idValue      id数据
      * @param isMergeQuery true-在查询同一对象数据时，合并数据的缓存策略；false-不做合并处理；
@@ -259,7 +251,6 @@ public class StorageManager extends WithService {
      * 查询数据
      *
      * @param dao         table mapper
-     * @param methodEntry methodEntry
      * @param entityClass data class
      * @param idValue     id数据
      * @param <T>         数据类型

@@ -1,0 +1,154 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.eyinfo",
+    "module": "spring-cache",
+    "version": "1.0.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.10"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "io.github.eyinfo",
+          "module": "spring-foundation",
+          "version": {
+            "requires": "1.0.0"
+          }
+        },
+        {
+          "group": "org.springframework.boot",
+          "module": "spring-boot-starter-data-mongodb",
+          "version": {
+            "requires": "3.3.4"
+          }
+        },
+        {
+          "group": "org.springframework.boot",
+          "module": "spring-boot-starter-data-redis",
+          "version": {
+            "requires": "3.2.10"
+          }
+        },
+        {
+          "group": "com.github.pagehelper",
+          "module": "pagehelper-spring-boot-starter",
+          "version": {
+            "requires": "1.4.7"
+          }
+        },
+        {
+          "group": "com.baomidou",
+          "module": "mybatis-plus",
+          "version": {
+            "requires": "3.5.2"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "spring-cache-1.0.0.jar",
+          "url": "spring-cache-1.0.0.jar",
+          "size": 98378,
+          "sha512": "14e9c8affdab32ae7f258ee0cc9d59b5bc643c739c44dc3472e3940f131757d33b44a9ed11f18bccca6b16651e0ee4a65ea548a1804c45be3ef50fc595051c6c",
+          "sha256": "7da4bad3631e128a8669935c7e6ec194b6a61392edc8cf66648c352d3c2ccf41",
+          "sha1": "07d7929edc78da3c6e677c1a3d97a6958cc3e36a",
+          "md5": "6b21dfe1f9cb4822e1df6b08e1a4798c"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "io.github.eyinfo",
+          "module": "spring-foundation",
+          "version": {
+            "requires": "1.0.0"
+          }
+        },
+        {
+          "group": "org.springframework.boot",
+          "module": "spring-boot-starter-data-mongodb",
+          "version": {
+            "requires": "3.3.4"
+          }
+        },
+        {
+          "group": "org.springframework.boot",
+          "module": "spring-boot-starter-data-redis",
+          "version": {
+            "requires": "3.2.10"
+          }
+        },
+        {
+          "group": "com.github.pagehelper",
+          "module": "pagehelper-spring-boot-starter",
+          "version": {
+            "requires": "1.4.7"
+          }
+        },
+        {
+          "group": "com.baomidou",
+          "module": "mybatis-plus",
+          "version": {
+            "requires": "3.5.2"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "spring-cache-1.0.0.jar",
+          "url": "spring-cache-1.0.0.jar",
+          "size": 98378,
+          "sha512": "14e9c8affdab32ae7f258ee0cc9d59b5bc643c739c44dc3472e3940f131757d33b44a9ed11f18bccca6b16651e0ee4a65ea548a1804c45be3ef50fc595051c6c",
+          "sha256": "7da4bad3631e128a8669935c7e6ec194b6a61392edc8cf66648c352d3c2ccf41",
+          "sha1": "07d7929edc78da3c6e677c1a3d97a6958cc3e36a",
+          "md5": "6b21dfe1f9cb4822e1df6b08e1a4798c"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "spring-cache-1.0.0-sources.jar",
+          "url": "spring-cache-1.0.0-sources.jar",
+          "size": 54252,
+          "sha512": "3f65595af0506b5c55a4050368c1ad3bd9e7bc35d383818a1ee55f4f064cda868b6a4de987a78317e6e93540f2311a9eb9620ab63c77957e4b00a5622dbf93d0",
+          "sha256": "993fcc4a7df364c0dcb0956f18c126be27ae1544aac35dc6ac0fd10f446ef8ef",
+          "sha1": "59abb49ac0c0a99af7f67fe8220020673dab44b6",
+          "md5": "d5d7548cd6a7760b57d934f64bdf1488"
+        }
+      ]
+    }
+  ]
+}

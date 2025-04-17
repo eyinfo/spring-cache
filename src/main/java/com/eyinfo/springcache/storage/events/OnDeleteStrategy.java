@@ -16,9 +16,8 @@ public interface OnDeleteStrategy<C, T> {
      * 根据subkey取出缓存数据
      *
      * @param methodEntry
-     * @param conditions   条件
-     * @param redisDbIndex redis缓存数据库索引
-     * @return 返回缓存数据
+     * @param conditions  条件
+     * @param targetClass
      */
     public void onDeleteCache(DbMethodEntry methodEntry, C conditions, Class<T> targetClass);
 }

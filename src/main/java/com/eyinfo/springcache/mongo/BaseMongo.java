@@ -511,7 +511,6 @@ abstract class BaseMongo {
     /**
      * 设置自定义集合数据
      *
-     * @param environment    环境
      * @param data           数据对象
      * @param collectionName 集合名称
      * @param <T>            数据类型
@@ -541,7 +540,6 @@ abstract class BaseMongo {
     /**
      * 根据条件查询数据
      *
-     * @param environment    环境
      * @param query          查询条件
      * @param itemClass      单条数据class
      * @param collectionName 集合名称
@@ -555,7 +553,6 @@ abstract class BaseMongo {
     /**
      * 根据id获取数据
      *
-     * @param environment    环境
      * @param id             数据
      * @param itemClass      单条数据class
      * @param collectionName 集合名称
@@ -576,7 +573,6 @@ abstract class BaseMongo {
     /**
      * 根据ids获取数据
      *
-     * @param environment    环境
      * @param ids            ids
      * @param itemClass      单条数据class
      * @param collectionName 集合名称
@@ -593,7 +589,6 @@ abstract class BaseMongo {
     /**
      * 根据key获取数据
      *
-     * @param environment    环境
      * @param key            记录key
      * @param itemClass      单条数据class
      * @param collectionName 集合名称
@@ -610,7 +605,6 @@ abstract class BaseMongo {
     /**
      * 根据key获取数据
      *
-     * @param environment    环境
      * @param key            记录key
      * @param itemClass      单条数据class
      * @param collectionName 集合名称
@@ -618,6 +612,6 @@ abstract class BaseMongo {
      */
     public <Item> Item getQueryOneByKey(String key, Class<Item> itemClass, String collectionName) {
         List<Item> list = this.getQueryByKey(key, itemClass, collectionName);
-        return list.size() > 0 ? list.get(0) : null;
+        return !list.isEmpty() ? list.get(0) : null;
     }
 }

@@ -165,7 +165,6 @@ public class WithService {
      * @param request      分页参数
      * @param queryWrapper 查询条件
      * @param itemClass    单条数据class类型
-     * @param methodEntry  查询缓存定义
      * @param skipCache    是否跳过缓存
      * @return
      */
@@ -195,7 +194,6 @@ public class WithService {
      * @param request      分页参数
      * @param queryWrapper 查询条件
      * @param itemClass    单条数据class类型
-     * @param methodEntry  查询缓存定义
      * @param skipCache    是否跳过缓存
      * @return
      */
@@ -210,7 +208,6 @@ public class WithService {
      * @param request      分页参数
      * @param queryWrapper 查询条件
      * @param itemClass    单条数据class类型
-     * @param methodEntry  查询缓存定义
      * @return
      */
     public <T extends BaseEntity, M extends ItemMapper<T>> PageListResponse<List<T>> getPageList(M mapper, PageRequest request, QueryWrapper queryWrapper, Class<T> itemClass) {
@@ -224,7 +221,6 @@ public class WithService {
      * @param request      分页参数
      * @param queryWrapper 查询条件
      * @param itemClass    单条数据class类型
-     * @param methodEntry  查询缓存定义
      * @return
      */
     public <Item, Mapper> PageListResponse<List<Item>> getGenericPageList(Mapper mapper, PageRequest request, QueryWrapper queryWrapper, Class<Item> itemClass) {
@@ -234,10 +230,9 @@ public class WithService {
     /**
      * 查询分页数据
      *
-     * @param mapper      mapper
-     * @param request     分页参数
-     * @param itemClass   单条数据class类型
-     * @param methodEntry 查询缓存定义
+     * @param mapper    mapper
+     * @param request   分页参数
+     * @param itemClass 单条数据class类型
      * @return
      */
     public <T extends BaseEntity, M extends ItemMapper<T>> PageListResponse<List<T>> getPageList(M mapper, PageRequest request, Class<T> itemClass) {
@@ -247,10 +242,9 @@ public class WithService {
     /**
      * 查询分页数据
      *
-     * @param mapper      mapper
-     * @param request     分页参数
-     * @param itemClass   单条数据class类型
-     * @param methodEntry 查询缓存定义
+     * @param mapper    mapper
+     * @param request   分页参数
+     * @param itemClass 单条数据class类型
      * @return
      */
     public <Item, Mapper> PageListResponse<List<Item>> getGenericPageList(Mapper mapper, PageRequest request, Class<Item> itemClass) {
@@ -265,7 +259,6 @@ public class WithService {
      * @param limit        每页显示大小
      * @param queryWrapper 查询条件
      * @param itemClass    单条数据class类型
-     * @param methodEntry  查询缓存定义
      * @param skipCache    是否跳过缓存
      * @return
      */
@@ -284,7 +277,6 @@ public class WithService {
      * @param limit        每页显示大小
      * @param queryWrapper 查询条件
      * @param itemClass    单条数据class类型
-     * @param methodEntry  查询缓存定义
      * @param skipCache    是否跳过缓存
      * @return
      */
@@ -302,7 +294,6 @@ public class WithService {
      * @param page         查询分页
      * @param limit        每页显示大小
      * @param itemClass    单条数据class类型
-     * @param methodEntry  查询缓存定义
      * @param queryWrapper 查询条件
      * @return
      */
@@ -317,7 +308,6 @@ public class WithService {
      * @param page         查询分页
      * @param limit        每页显示大小
      * @param itemClass    单条数据class类型
-     * @param methodEntry  查询缓存定义
      * @param queryWrapper 查询条件
      * @return
      */
@@ -328,11 +318,10 @@ public class WithService {
     /**
      * 查询分页数据
      *
-     * @param mapper      mapper
-     * @param page        查询分页
-     * @param limit       每页显示大小
-     * @param itemClass   单条数据class类型
-     * @param methodEntry 查询缓存定义
+     * @param mapper    mapper
+     * @param page      查询分页
+     * @param limit     每页显示大小
+     * @param itemClass 单条数据class类型
      * @return
      */
     public <T extends BaseEntity, M extends ItemMapper<T>> PageListResponse<List<T>> getPageList(M mapper, int page, int limit, Class<T> itemClass) {
@@ -342,11 +331,10 @@ public class WithService {
     /**
      * 查询分页数据
      *
-     * @param mapper      mapper
-     * @param page        查询分页
-     * @param limit       每页显示大小
-     * @param itemClass   单条数据class类型
-     * @param methodEntry 查询缓存定义
+     * @param mapper    mapper
+     * @param page      查询分页
+     * @param limit     每页显示大小
+     * @param itemClass 单条数据class类型
      * @return
      */
     public <Item, Mapper> PageListResponse<List<Item>> getGenericPageList(Mapper mapper, int page, int limit, Class<Item> itemClass) {
