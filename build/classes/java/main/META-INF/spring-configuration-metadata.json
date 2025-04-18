@@ -25,27 +25,32 @@
     {
       "name": "spring.caching.strategy.api-global-cache-time",
       "type": "java.lang.Long",
-      "sourceType": "com.eyinfo.springcache.entity.CachingStrategyConfig"
+      "sourceType": "com.eyinfo.springcache.entity.CachingStrategyConfig",
+      "defaultValue": 120000
     },
     {
       "name": "spring.caching.strategy.merge-custom-cache",
       "type": "java.lang.Boolean",
-      "sourceType": "com.eyinfo.springcache.entity.CachingStrategyConfig"
+      "sourceType": "com.eyinfo.springcache.entity.CachingStrategyConfig",
+      "defaultValue": false
     },
     {
       "name": "spring.caching.strategy.merge-custom-cache-only-dev-test",
       "type": "java.lang.Boolean",
-      "sourceType": "com.eyinfo.springcache.entity.CachingStrategyConfig"
+      "sourceType": "com.eyinfo.springcache.entity.CachingStrategyConfig",
+      "defaultValue": false
     },
     {
       "name": "spring.caching.strategy.mongo-global-cache-time",
       "type": "java.lang.Long",
-      "sourceType": "com.eyinfo.springcache.entity.CachingStrategyConfig"
+      "sourceType": "com.eyinfo.springcache.entity.CachingStrategyConfig",
+      "defaultValue": 300000
     },
     {
       "name": "spring.caching.strategy.redis-global-cache-time",
       "type": "java.lang.Long",
-      "sourceType": "com.eyinfo.springcache.entity.CachingStrategyConfig"
+      "sourceType": "com.eyinfo.springcache.entity.CachingStrategyConfig",
+      "defaultValue": 60000
     }
   ],
   "hints": []
